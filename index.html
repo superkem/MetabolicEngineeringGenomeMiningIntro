@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Genome Mining – Animated Walkthrough</title>
+<style>
+:root{--bg:#eef3f2;--ink:#14302c;--mut:#587670;--card:#fff;--line:#d3e0dd;--acc:#0f9d8a;--acc2:#0b6e61;--dark:#0d2b27}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+header{background:var(--dark);color:#e8fffb;padding:14px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0;font-weight:700;letter-spacing:.2px}
+header p{margin:0;color:#9fd8cf;font-size:13.5px}
+header .sp{flex:1}
+.app{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px;max-width:1320px;margin:0 auto;padding:16px}
+nav{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;align-self:start;position:sticky;top:12px}
+nav button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:9px 10px;border-radius:9px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+nav button:hover{background:#e9f5f3}
+nav button.on{background:var(--acc);color:#fff}
+nav button .n{flex:none;min-width:26px;height:26px;padding:0 4px;border-radius:13px;background:#dcebe8;color:var(--acc2);font-weight:700;font-size:12.5px;display:grid;place-items:center}
+nav button.on .n{background:#fff;color:var(--acc2)}
+nav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);padding:10px 10px 4px}
+main{min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.stagehead{display:flex;align-items:baseline;gap:12px;padding:12px 18px 0}
+.stagehead h2{margin:0;font-size:19px}
+.stagehead span{color:var(--mut);font-size:13.5px}
+#stage{display:block;width:100%;height:auto;aspect-ratio:960/440}
+.svgstage text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.svgstage text.mono,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.t{transition:transform 1.1s cubic-bezier(.45,0,.2,1),opacity .8s ease,fill .7s,stroke .7s;transform-origin:0 0}
+.notrans .t{transition:none!important}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bub{animation:bub 3s ease-in-out infinite alternate}
+@keyframes bub{from{transform:translateY(6px)}to{transform:translateY(-8px)}}
+.shake{animation:shake .5s ease-in-out infinite alternate}
+@keyframes shake{from{transform:rotate(-2deg)}to{transform:rotate(2deg)}}
+.fl{animation:fl .9s ease-out}
+@keyframes fl{0%{opacity:.7}100%{opacity:0}}
+.pulse{animation:pulse 1.1s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.35}to{opacity:1}}
+.trace{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.6s ease}
+.cap{padding:6px 20px 14px;display:grid;gap:6px;min-height:150px}
+.cap .meta{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.7px}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dots i{width:22px;height:8px;border-radius:5px;background:#d3e0dd;cursor:pointer;transition:.25s}
+.dots i.on{background:var(--acc);width:34px}
+.dots i.done{background:#8fd3c8}
+.cap h3{margin:0;font-size:19px}
+.cap .en{font-size:16px;margin:0}
+.cap .vi{font-size:14.5px;margin:0;color:#3d6a63;background:#eaf6f3;border-left:4px solid var(--acc);padding:7px 11px;border-radius:0 8px 8px 0}
+body.novi .vi{display:none}
+.ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding:10px 16px;background:#f8fbfa}
+.ctrl button,.ctrl select{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 12px;cursor:pointer;color:var(--ink)}
+.ctrl button:hover{border-color:var(--acc)}
+.ctrl button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600;min-width:104px}
+.ctrl .sp{flex:1}
+.ctrl label{font-size:13.5px;color:var(--mut);display:flex;gap:6px;align-items:center}
+#quiz{padding:18px 22px 26px}
+#quiz h3{margin:0 0 4px}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin:5px 0;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:#fff;font:inherit;cursor:pointer}
+.q button:hover:not(:disabled){border-color:var(--acc);background:#f0faf8}
+.q button.ok{background:#d3f9d8;border-color:#40c057}
+.q button.bad{background:#ffe3e3;border-color:#fa5252}
+.q .ex{display:none;font-size:14px;color:#3d6a63;margin-top:6px}
+.q.done .ex{display:block}
+#score{font-weight:700;color:var(--acc2)}
+@media(max-width:860px){
+ .app{grid-template-columns:1fr;padding:10px}
+ nav{display:flex;overflow-x:auto;position:static;gap:4px}
+ nav button{white-space:nowrap;width:auto}
+ nav .grp{display:none}
+ .cap h3{font-size:17px}.cap .en{font-size:15px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🧬 Genome Mining – from a colony to a gene cluster</h1>
+    <p>Animated walkthrough: DNA extraction · sequencing · assembly · gene prediction · BGC detection · validation</p>
+  </div>
+  <div class="sp"></div>
+  <label style="font-size:13.5px;color:#9fd8cf;display:flex;gap:6px;align-items:center"><input type="checkbox" id="viTog" checked> Tiếng Việt</label>
+</header>
+<div class="app">
+  <nav id="nav"></nav>
+  <main>
+    <div class="card">
+      <div class="stagehead"><h2 id="sTitle"></h2><span id="sSub"></span></div>
+      <svg id="stage" class="svgstage" viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Animated diagram"></svg>
+      <div id="quiz" style="display:none"></div>
+      <div class="cap" id="cap">
+        <div class="meta"><span id="stepNo"></span><div class="dots" id="dots"></div></div>
+        <h3 id="cT"></h3>
+        <p class="en" id="cEn"></p>
+        <p class="vi" id="cVi"></p>
+      </div>
+      <div class="ctrl" id="ctrl">
+        <button id="bPrev" title="Previous (←)">◀ Back</button>
+        <button id="bPlay" class="pri" title="Play / pause (space)">▶ Play</button>
+        <button id="bNext" title="Next (→)">Next ▶</button>
+        <button id="bRe" title="Replay this step">↻ Replay step</button>
+        <span class="sp"></span>
+        <label>Speed
+          <select id="spd"><option value="0.6">0.6×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select>
+        </label>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ================= helpers ================= */
+const NS="http://www.w3.org/2000/svg";
+const COL={A:'#2f9e44',T:'#e03131',G:'#f08c00',C:'#1971c2'};
+function E(tag,a,p){const e=document.createElementNS(NS,tag);e.setAttribute('class','t'+(a&&a.class?' '+a.class:''));if(a)for(const k in a)if(k!=='class')e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function G(p){return E('g',null,p)}
+function TX(p,x,y,s,a){const e=E('text',Object.assign({x,y},a||{}),p);e.textContent=s;return e}
+function S(e,o){const s=e._s||(e._s={x:0,y:0,r:0,sx:1,sy:1});
+  for(const k of ['x','y','r','sx','sy'])if(o[k]!==undefined)s[k]=o[k];
+  if(o.s!==undefined){s.sx=s.sy=o.s}
+  e.style.transform=`translate(${s.x}px,${s.y}px) rotate(${s.r}deg) scale(${s.sx},${s.sy})`;
+  e.style.transitionDelay=(o.d||0)+'s';
+  e.style.transitionDuration=o.dur?o.dur+'s':'';
+  if(o.o!==undefined)e.style.opacity=o.o;
+  if(o.fill)e.style.fill=o.fill;
+  return e}
+function rng(seed){return()=>(seed=(seed*16807)%2147483647)/2147483647}
+function hex(cx,cy,r){let p=[];for(let k=0;k<6;k++){const a=(30+60*k)*Math.PI/180;p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1))}return p.join(' ')}
+function tile(p,ch,w,o){o=o||{};const g=G(p);const c=o.grey?'#868e96':(COL[ch]||'#868e96');
+  E('rect',{x:-w/2,y:-w/2,width:w,height:w,rx:6,fill:c,'fill-opacity':o.solid?1:.2,stroke:c,'stroke-width':1.5},g);
+  TX(g,0,w*.2,ch,{'text-anchor':'middle','font-size':w*.6,'font-weight':700,fill:o.solid?'#fff':c,class:'mono'});return g}
+function arrowHead(p,x,y,dir,c){return E('polygon',{points:dir>0?`${x},${y-6} ${x+11},${y} ${x},${y+6}`:`${x},${y-6} ${x-11},${y} ${x},${y+6}`,fill:c||'#495057'},p)}
+function geneShape(p,w,dir,fill,h){h=h||12;const pts=dir>0?`0,${-h} ${w-14},${-h} ${w},0 ${w-14},${h} 0,${h}`:`${w},${-h} 14,${-h} 0,0 14,${h} ${w},${h}`;return E('polygon',{points:pts,fill:fill,stroke:'#fff','stroke-width':1.5},p)}
+const GT={pks:'#e03131',sugar:'#f59f00',bio:'#1c7ed6',reg:'#37b24d',trans:'#7048e8',other:'#adb5bd'};
+
+/* ================= scenes ================= */
+const scenes=[];
+
+/* ---------- 0 Overview ---------- */
+scenes.push({title:'The big picture',sub:'Six stages from a Petri dish to a validated compound',go:null,build(svg,api){
+  const N=[
+   {a:'Material',b:'preparation',out:'gDNA',go:1,q:'Which strain? Which medium? How do we get clean DNA?'},
+   {a:'DNA',b:'sequencing',out:'reads (FASTQ)',go:2,q:'How do we convert DNA letters into digital data?'},
+   {a:'Read',b:'assembly',out:'contigs (FASTA)',go:4,q:'How do we put millions of short pieces back in order?'},
+   {a:'Gene',b:'prediction',out:'genes / proteins',go:6,q:'Where are the genes, and what do they probably do?'},
+   {a:'BGC',b:'prediction',out:'BGC regions',go:7,q:'Which groups of genes could build a natural product?'},
+   {a:'Genetic',b:'manipulation',out:'gene ↔ compound',go:8,q:'Does the cluster really make the compound? Prove it!'}];
+  const nodes=N.map((n,i)=>{
+    const g=G(svg);S(g,{x:30+i*152,y:56});g.style.cursor='pointer';
+    const r=E('rect',{x:0,y:0,width:132,height:196,rx:16,fill:'#fff',stroke:'#c9dad6','stroke-width':2.5},g);
+    const c=E('circle',{cx:20,cy:20,r:13,fill:'#0f9d8a'},g);TX(g,20,25,i+1,{'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#fff'});
+    icon(i,E('g',null,g));
+    TX(g,66,142,n.a,{'text-anchor':'middle','font-size':15,'font-weight':700,fill:'#14302c'});
+    TX(g,66,160,n.b,{'text-anchor':'middle','font-size':15,'font-weight':700,fill:'#14302c'});
+    E('rect',{x:10,y:morY(),width:112,height:24,rx:12,fill:'#e6f6f3'},g);
+    TX(g,66,morY()+16,n.out,{'text-anchor':'middle','font-size':12,fill:'#0b6e61','font-weight':600});
+    g.addEventListener('click',()=>api.go(n.go));
+    g._r=r;return g});
+  function morY(){return 166}
+  for(let i=0;i<5;i++){const x=30+i*152+132;E('path',{d:`M${x+2},154 l16,0 m-6,-6 l6,6 l-6,6`,stroke:'#0f9d8a','stroke-width':3,fill:'none','stroke-linecap':'round'},svg)}
+  const q=E('rect',{x:30,y:290,width:900,height:86,rx:16,fill:'#0d2b27'},svg);
+  const qt=TX(svg,480,326,'',{'text-anchor':'middle','font-size':20,fill:'#e8fffb','font-weight':600});
+  const qs=TX(svg,480,356,'',{'text-anchor':'middle','font-size':14,fill:'#9fd8cf'});
+  TX(svg,480,412,'Click a box to jump to its animation',{'text-anchor':'middle','font-size':13,fill:'#587670'});
+  const sub=['','Strain + medium → cells → purified genomic DNA','Sanger or Illumina → reads','SPAdes etc. → contigs → scaffolds → draft genome','Prodigal / RAST-style tools → ORFs + functional annotation','antiSMASH → regions, types, similarity to known clusters','Knock-out a core gene → compare HPLC profiles'];
+  return{steps:[
+   {t:'From a colony on a plate to a molecule in a vial',en:'Genome mining reads an organism’s DNA to find the “recipes” – biosynthetic gene clusters (BGCs) – for natural products (NPs). The workflow has six stages. Follow them in order, or click any box to jump to its animation.',vi:'Khai thác bộ gen (genome mining) là đọc DNA của sinh vật để tìm các “công thức” – cụm gen sinh tổng hợp (BGC) – tạo ra sản phẩm tự nhiên. Quy trình gồm 6 giai đoạn; bấm vào từng ô để xem hoạt ảnh.'},
+   {t:'Stage 1 – Material preparation',en:'We choose and grow the strain (the medium matters!), then purify high-quality genomic DNA. Everything downstream depends on this DNA being clean and intact.',vi:'Chọn và nuôi cấy chủng (môi trường rất quan trọng!), sau đó tinh sạch DNA hệ gen. Chất lượng DNA quyết định chất lượng mọi bước sau.'},
+   {t:'Stage 2 – DNA sequencing',en:'Sequencers cannot read a whole genome in one go. They read short fragments: long and accurate one-at-a-time (Sanger) or millions in parallel (Illumina).',vi:'Máy giải trình tự không đọc cả hệ gen một lần mà đọc từng đoạn ngắn: Sanger (từng đoạn, chính xác) hoặc Illumina (hàng triệu đoạn song song).'},
+   {t:'Stage 3 – Read assembly',en:'Software finds overlaps between reads and merges them into contigs, then scaffolds, then a draft genome. (For Streptosporangium B16437 the assembler was SPAdes.)',vi:'Phần mềm tìm các đoạn chồng lấp giữa các read rồi ghép thành contig, scaffold và cuối cùng là bộ gen nháp. (Với chủng B16437, phần mềm ghép là SPAdes.)'},
+   {t:'Stage 4 – Gene prediction',en:'In the assembled sequence we look for open reading frames – start codon to stop codon – and annotate what each protein probably does by comparing it with databases.',vi:'Trong chuỗi đã ghép, ta tìm khung đọc mở (ORF) – từ codon khởi đầu đến codon kết thúc – rồi chú giải chức năng protein bằng cách so với cơ sở dữ liệu.'},
+   {t:'Stage 5 – BGC prediction',en:'antiSMASH scans the annotated genome for signature genes and groups their neighbours into BGC regions. For B16437 it predicted 38 regions – one of them (region #99) is a type II PKS cluster.',vi:'antiSMASH quét hệ gen đã chú giải để tìm gen “dấu hiệu” và gom các gen lân cận thành vùng BGC. Với B16437 có 38 vùng; vùng #99 là cụm type II PKS.'},
+   {t:'Stage 6 – Genetic manipulation & validation',en:'Prediction is only a hypothesis. Disrupt a core gene of the cluster, then compare HPLC profiles of wild type and mutant: if one peak disappears, the cluster makes that compound.',vi:'Dự đoán mới chỉ là giả thuyết. Ta làm bất hoạt gen lõi của cụm rồi so sánh sắc ký HPLC của chủng gốc và chủng đột biến: mất một đỉnh nghĩa là cụm gen tạo ra hợp chất đó.'}],
+  set(i){nodes.forEach((g,k)=>{const on=i===k+1;S(g,{y:on?44:56,s:on?1.04:1,o:i===0||on?1:.45});g._r.style.stroke=on?'#0f9d8a':'#c9dad6'});
+    qt.textContent=i?N[i-1].q:'Colony  →  DNA  →  reads  →  genome  →  genes  →  BGC  →  compound';qs.textContent=sub[i]||'(follow the arrows)';}}
+  function icon(i,g){switch(i){
+   case 0:E('circle',{cx:66,cy:84,r:34,fill:'#fbf3d6',stroke:'#b8a77a','stroke-width':3},g);[[50,72,5,'#26364a'],[78,66,7,'#c9a66b'],[60,98,6,'#6b7f8c'],[84,92,4,'#8c5a3c'],[70,80,9,'#26364a']].forEach(([x,y,r,c])=>E('circle',{cx:x,cy:y,r,fill:c},g));break;
+   case 1:[[26,66,50,'#e03131'],[40,78,56,'#f08c00'],[22,90,44,'#1971c2'],[52,102,50,'#2f9e44']].forEach(([x,y,w,c])=>E('rect',{x,y,width:w,height:9,rx:4,fill:c},g));break;
+   case 2:[[18,90,34],[58,90,26],[90,90,26]].forEach(([x,y,w])=>E('rect',{x,y:y-8,width:w,height:16,rx:4,fill:'#4dabf7'},g));E('rect',{x:18,y:56,width:100,height:6,rx:3,fill:'#e9ecef'},g);break;
+   case 3:[[14,64,'other',1],[44,64,'pks',1],[74,64,'pks',1],[28,98,'bio',-1],[62,98,'reg',-1],[92,98,'trans',1]].forEach(([x,y,t,d])=>{const q=G(g);S(q,{x,y});geneShape(q,32,d,GT[t],9)});break;
+   case 4:E('circle',{cx:58,cy:82,r:30,fill:'#fff',stroke:'#0d2b27','stroke-width':5},g);E('line',{x1:80,y1:104,x2:104,y2:128,stroke:'#0d2b27','stroke-width':8,'stroke-linecap':'round'},g);[[36,'#e03131'],[50,'#e03131'],[64,'#f59f00'],[78,'#1c7ed6']].forEach(([x,c])=>E('rect',{x:x-6,y:76,width:12,height:12,rx:3,fill:c},g));break;
+   case 5:E('polygon',{points:hex(46,86,24),fill:'#fff3bf',stroke:'#f08c00','stroke-width':3},g);E('polygon',{points:hex(88,86,24),fill:'#fff3bf',stroke:'#f08c00','stroke-width':3},g);E('rect',{x:44,y:112,width:46,height:12,rx:6,fill:'#e03131',opacity:.0},g);break;}}
+}});
+
+/* ---------- 1 Sample preparation ---------- */
+scenes.push({title:'1 · Material preparation',sub:'Strain → culture → purified genomic DNA',build(svg){
+  const defs=E('defs',null,svg);const cp=E('clipPath',{id:'zoomclip'},defs);E('circle',{cx:650,cy:225,r:170},cp);
+  const A=G(svg);
+  // petri
+  const petri=G(A);E('circle',{cx:480,cy:225,r:168,fill:'#f7f3e6',stroke:'#aab8b4','stroke-width':6},petri);E('circle',{cx:480,cy:225,r:150,fill:'#fbf6dc',stroke:'#e6dcb4'},petri);
+  const r1=rng(7);for(let i=0;i<24;i++){const a=r1()*6.28,d=Math.sqrt(r1())*128;E('circle',{cx:480+d*Math.cos(a),cy:225+d*Math.sin(a),r:5+r1()*8,fill:['#6b7f8c','#c9a66b','#e8d9a8','#8c5a3c','#9aa9b5'][i%5]},petri)}
+  E('circle',{cx:560,cy:190,r:19,fill:'#26364a'},petri);E('circle',{cx:560,cy:190,r:31,fill:'none',stroke:'#0f9d8a','stroke-width':3,'stroke-dasharray':'6 5',class:'spin'},petri);
+  E('line',{x1:590,y1:178,x2:668,y2:150,stroke:'#0f9d8a','stroke-width':2},petri);
+  TX(petri,672,148,'Streptosporangium B16437',{'font-size':15,'font-weight':700,fill:'#0b6e61'});TX(petri,672,168,'single colony = one pure strain',{'font-size':13,fill:'#587670'});
+  TX(petri,480,425,'Isolation plate (actinomycete colonies)',{'text-anchor':'middle','font-size':13,fill:'#587670'});
+  // plate with media
+  const plate=G(A);E('rect',{x:200,y:44,width:550,height:350,rx:20,fill:'#eef3f2',stroke:'#b5c7c3','stroke-width':3},plate);
+  const media=[['ISP2','#d9a441',.35],['NZSG','#8c5a3c',.9],['A1','#c85a8a',.15],['LB','#e9dfb0',.6],['Chitin','#9bb7c9',.25],['LWA','#4a6b52',.75]];
+  const bars=[];const r2=rng(3);
+  media.forEach((m,i)=>{const cx=300+(i%3)*150,cy=135+Math.floor(i/3)*140;E('circle',{cx,cy,r:58,fill:'#fff',stroke:'#9db2ad','stroke-width':3},plate);E('circle',{cx,cy,r:50,fill:m[1],opacity:.55},plate);
+    for(let k=0;k<6;k++){const a=r2()*6.28,d=r2()*30;E('circle',{cx:cx+d*Math.cos(a),cy:cy+d*Math.sin(a),r:3+r2()*5,fill:m[1],stroke:'#26364a','stroke-width':1.2},plate)}
+    TX(plate,cx,cy+78,m[0],{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#14302c'});
+    const by=70+i*50;TX(plate,780,by+13,m[0],{'font-size':12,fill:'#587670'});const b=G(plate);E('rect',{x:0,y:0,width:100,height:16,rx:8,fill:'#0f9d8a'},b);S(b,{x:830,y:by,sx:0.001});b._v=m[2];bars.push(b);E('rect',{x:830,y:by,width:100,height:16,rx:8,fill:'none',stroke:'#b5c7c3'},plate)});
+  TX(plate,830,56,'NP yield (relative)',{'font-size':13,'font-weight':700,fill:'#0b6e61'});
+  // flask
+  const fl=G(A);S(fl,{x:250,y:225,s:1.15});
+  E('path',{d:'M-32,-92 L-32,-42 L-84,62 Q-96,92 -62,92 L62,92 Q96,92 84,62 L32,-42 L32,-92 Z',fill:'#f8fbfb',stroke:'#7b8f8b','stroke-width':3.5},fl);
+  const liq=E('path',{d:'M-62,18 L62,18 L84,62 Q96,92 62,92 L-62,92 Q-96,92 -84,62 Z',fill:'#f4d35e',opacity:.9},fl);
+  E('rect',{x:-38,y:-114,width:76,height:26,rx:8,fill:'#f1f3f5',stroke:'#adb5bd','stroke-width':2},fl);
+  const r3=rng(9);for(let i=0;i<14;i++){const c=E('circle',{cx:-60+r3()*120,cy:36+r3()*46,r:3.2,fill:'#2f8f4e',class:'bub'},fl);c.style.animationDelay=(-r3()*3)+'s'}
+  const flab=TX(A,250,372,'Liquid culture · 28–30 °C · shaking · days',{'text-anchor':'middle','font-size':14,fill:'#14302c','font-weight':600});
+  const fl2=G(A);const arr=E('path',{d:'M400,230 L520,230 m-10,-9 l10,9 l-10,9',stroke:'#495057','stroke-width':4,fill:'none','stroke-linecap':'round'},fl2);TX(fl2,460,212,'centrifuge',{'text-anchor':'middle','font-size':14,fill:'#495057'});
+  const pt=G(fl2);S(pt,{x:650,y:225});E('path',{d:'M-34,-130 L34,-130 L34,60 Q34,118 0,136 Q-34,118 -34,60 Z',fill:'#f4f8fb',stroke:'#7b8f8b','stroke-width':3.5},pt);E('rect',{x:-40,y:-146,width:80,height:18,rx:6,fill:'#ced4da'},pt);E('ellipse',{cx:0,cy:116,rx:22,ry:14,fill:'#cdbf8a',stroke:'#8d7f4f'},pt);TX(pt,0,170,'cell pellet',{'text-anchor':'middle','font-size':14,'font-weight':600,fill:'#14302c'});
+  // group B
+  const B=G(svg);
+  const chips=['Resuspend','Lysis','Protein removal','Precipitation','Rehydration'].map((s,i)=>{const g=G(B);S(g,{x:60+i*176,y:14});const r=E('rect',{x:0,y:0,width:164,height:28,rx:14,fill:'#e6f6f3'},g);TX(g,82,19,s,{'text-anchor':'middle','font-size':13,'font-weight':600,fill:'#0b6e61'});g._r=r;return g});
+  const tube=G(B);S(tube,{x:170,y:235});
+  const tl=E('path',{d:'M-34,-60 L34,-60 L34,60 Q34,130 0,150 Q-34,130 -34,60 Z',fill:'#cfe8bd'},tube);
+  E('path',{d:'M-34,-150 L34,-150 L34,60 Q34,130 0,150 Q-34,130 -34,60 Z',fill:'none',stroke:'#7b8f8b','stroke-width':3.5},tube);E('rect',{x:-40,y:-166,width:80,height:18,rx:6,fill:'#ced4da'},tube);
+  const tclump=E('ellipse',{cx:0,cy:20,rx:14,ry:6,fill:'#fff',stroke:'#b5c4cf'},tube);S(tclump,{o:0});
+  const tlab=TX(B,170,420,'',{'text-anchor':'middle','font-size':14,'font-weight':600,fill:'#14302c'});
+  E('line',{x1:206,y1:120,x2:560,y2:78,stroke:'#9db2ad','stroke-dasharray':'5 5'},B);E('line',{x1:206,y1:330,x2:560,y2:372,stroke:'#9db2ad','stroke-dasharray':'5 5'},B);
+  E('circle',{cx:650,cy:225,r:172,fill:'#e7f4fb',stroke:'#7aa6c2','stroke-width':4},B);
+  const clip=E('g',{'clip-path':'url(#zoomclip)'},B);const gp=E('g',{transform:'translate(650,225)'},clip);
+  const r4=rng(21);const pt0=()=>{const a=r4()*6.28,d=Math.sqrt(r4())*118;return{x:d*Math.cos(a),y:d*Math.sin(a)-5,r:r4()*180-90}};
+  const cells=[],dna=[],prot=[],deb=[];
+  for(let i=0;i<12;i++){const p=pt0();const g=G(gp);E('rect',{x:-22,y:-10,width:44,height:20,rx:10,fill:'#7bc47f',stroke:'#2f8f4e','stroke-width':2},g);E('circle',{cx:-6,cy:0,r:4,fill:'#2f8f4e',opacity:.5},g);S(g,{x:p.x,y:p.y,r:p.r,o:0});g._p=p;cells.push(g)}
+  for(let i=0;i<10;i++){const p=pt0(),q=pt0();const g=G(gp);E('path',{d:'M-30,0 q7.5,-12 15,0 t15,0 t15,0 t15,0',fill:'none',stroke:'#1c5fd0','stroke-width':3},g);E('path',{d:'M-30,0 q7.5,12 15,0 t15,0 t15,0 t15,0',fill:'none',stroke:'#e03131','stroke-width':3,opacity:.8},g);S(g,{x:p.x,y:p.y,r:p.r,o:0,s:.5});g._p=p;g._q=q;dna.push(g)}
+  for(let i=0;i<16;i++){const p=pt0();const g=G(gp);E('circle',{r:6,fill:'#f08c00'},g);E('circle',{cx:7,cy:-3,r:3.5,fill:'#f59f00'},g);S(g,{x:p.x,y:p.y,o:0});g._p=p;prot.push(g)}
+  for(let i=0;i<9;i++){const p=pt0();const g=G(gp);E('polygon',{points:'-9,-4 -2,-9 8,-5 9,5 0,9 -8,6',fill:'#adb5bd'},g);S(g,{x:p.x,y:p.y,r:p.r,o:0});g._p=p;deb.push(g)}
+  const clump=G(gp);E('ellipse',{cx:0,cy:0,rx:58,ry:26,fill:'#fff',stroke:'#c5d4de','stroke-width':2},clump);for(let k=0;k<7;k++){E('path',{d:'M-34,0 q8.5,-14 17,0 t17,0 t17,0 t17,0',fill:'none',stroke:'#dfe9f0','stroke-width':4,transform:`rotate(${k*26-80}) translate(0,${(k%3-1)*5})`},clump)}
+  S(clump,{x:0,y:-10,o:0});
+  const znote=TX(B,650,420,'',{'text-anchor':'middle','font-size':13,fill:'#587670'});
+  const liqC={3:'#cfe8bd',4:'#f5e6a1',5:'#fdf6d3',6:'#f4f8fb',7:'#eaf6ff'};
+  const tlabs={3:'Cells in buffer',4:'+ lysis buffer (lysozyme, SDS)',5:'+ proteinase K / salt',6:'+ cold ethanol',7:'+ TE buffer → pure gDNA'};
+  const znotes={3:'Zoom-in: intact cells',4:'Cell walls and membranes burst – DNA and proteins spill out',5:'Proteins and debris are digested / separated; DNA stays in solution',6:'DNA is insoluble in ethanol: strands clump into a visible white thread',7:'DNA re-dissolves – check purity (A260/A280 ≈ 1.8) and integrity on a gel'};
+  const steps=[
+   {t:'Pick one colony = one pure strain',en:'Natural-product producers (here the actinomycete Streptosporangium B16437) are isolated from soil or other samples on agar plates. Each colony grows from a single cell, so one colony = one pure strain.',vi:'Chủng sinh sản phẩm tự nhiên (ở đây là xạ khuẩn Streptosporangium B16437) được phân lập trên đĩa thạch. Mỗi khuẩn lạc xuất phát từ một tế bào nên một khuẩn lạc = một chủng thuần.'},
+   {t:'The medium decides what the strain makes (OSMAC)',en:'The same strain grown on different media switches different biosynthetic pathways on or off. “One Strain – Many Compounds” (OSMAC): testing several media increases the chance of activating natural-product biosynthesis.',vi:'Cùng một chủng nhưng môi trường khác nhau sẽ bật/tắt các con đường sinh tổng hợp khác nhau. OSMAC – “Một chủng, nhiều hợp chất”: thử nhiều môi trường giúp tăng khả năng kích hoạt tạo sản phẩm tự nhiên.'},
+   {t:'Grow a liquid culture and harvest the cells',en:'Cells are grown in a shaken flask until there is enough biomass, then collected by centrifugation. The pellet is the starting material for DNA extraction.',vi:'Nuôi lắc trong bình đến khi đủ sinh khối rồi ly tâm thu cặn tế bào. Cặn này là nguyên liệu để tách chiết DNA.'},
+   {t:'Resuspend the cells',en:'The pellet is resuspended in buffer. Zoom in: every cell still holds its genomic DNA (gDNA) inside, wrapped by a tough actinomycete cell wall.',vi:'Cặn tế bào được hòa lại trong đệm. Phóng to: mỗi tế bào vẫn chứa DNA hệ gen bên trong lớp vách dày của xạ khuẩn.'},
+   {t:'Cell lysis',en:'Lysozyme and detergent break the cell wall and membranes. DNA, proteins and cell debris are now mixed together in the solution.',vi:'Lysozyme và chất tẩy phá vách và màng tế bào. DNA, protein và mảnh vỡ tế bào trộn lẫn trong dung dịch.'},
+   {t:'Protein removal',en:'Proteinase K digests proteins; salt or phenol–chloroform / spin columns separate them from the nucleic acid. Proteins and debris are discarded.',vi:'Proteinase K phân hủy protein; muối hoặc phenol–chloroform/cột tách protein khỏi acid nucleic. Protein và mảnh vỡ được loại bỏ.'},
+   {t:'DNA precipitation',en:'Cold ethanol (or isopropanol) makes DNA insoluble. The long strands clump into a visible thread that can be pelleted by centrifugation and washed.',vi:'Ethanol lạnh (hoặc isopropanol) làm DNA kết tủa; các sợi dài kết thành khối trắng, được ly tâm thu lại và rửa.'},
+   {t:'Rehydration → pure genomic DNA',en:'The DNA pellet is dissolved in TE buffer or water. Quality control (purity ratio and gel) tells us whether the DNA is clean and long enough for sequencing.',vi:'Hòa tan DNA trong đệm TE hoặc nước. Kiểm tra chất lượng (tỉ lệ độ tinh sạch và điện di) để biết DNA có đủ sạch và đủ dài để giải trình tự hay không.'}];
+  return{steps,set(i){
+    const a=i<3;S(A,{o:a?1:0});S(B,{o:a?0:1});
+    S(petri,{o:i===0?1:0,s:i===0?1:.9});S(plate,{o:i===1?1:0});S(fl,{o:i===2?1:0});S(flab,{o:i===2?1:0});S(fl2,{o:i===2?1:0,d:i===2?2.2:0});
+    liq.style.opacity=i===2?.95:.15;liq.style.transition='opacity 3s';
+    bars.forEach((b,k)=>S(b,{sx:i===1?b._v*1:0.001,d:i===1?.6+k*.15:0,dur:1.2}));
+    if(i>=3){const k=i;chips.forEach((c,j)=>c._r.style.fill=j===k-3?'#0f9d8a':'#e6f6f3');chips.forEach((c,j)=>c.children[1].style.fill=j===k-3?'#fff':'#0b6e61');
+      tl.style.fill=liqC[k];tlab.textContent=tlabs[k];znote.textContent=znotes[k];S(tclump,{o:k===6?1:0});
+      cells.forEach(c=>k===3?S(c,{x:c._p.x,y:c._p.y,r:c._p.r,s:1,o:1}):S(c,{s:1.7,o:0}));
+      dna.forEach(c=>{if(k===3)S(c,{o:0,s:.5});else if(k===6)S(c,{x:c._p.x*.12,y:-10+c._p.y*.1,r:c._p.r*.2,o:0,s:1});else if(k===7)S(c,{x:c._q.x,y:c._q.y,r:c._q.r,o:1,s:1,d:.5});else S(c,{x:c._p.x,y:c._p.y,r:c._p.r,o:1,s:1})});
+      prot.forEach((c,j)=>{if(k===3)S(c,{o:0});else if(k===4)S(c,{x:c._p.x,y:c._p.y,o:1});else if(k===5)S(c,{x:c._p.x*.9,y:128+(j%4)*8,o:1});else S(c,{x:c._p.x*.9,y:150,o:0})});
+      deb.forEach((c,j)=>{if(k===3)S(c,{o:0});else if(k===4)S(c,{x:c._p.x,y:c._p.y,o:1});else if(k===5)S(c,{x:c._p.x*.9,y:138+(j%3)*7,o:1});else S(c,{x:c._p.x*.9,y:150,o:0})});
+      S(clump,{o:k===6?1:0,s:k===6?1:(k===7?1.8:.4),d:k===6?.8:0});}
+  }}
+}});
+
+/* ---------- 2 Sanger ---------- */
+scenes.push({title:'2a · Sanger sequencing',sub:'The traditional chain-termination method',build(svg){
+  const NEW='ATGCCGTAGC',TPL='TACGGCATCG',x0=300,dx=44;
+  const g1=G(svg);
+  TX(g1,40,276,'Template (3′→5′)',{'font-size':15,fill:'#495057'});TX(g1,40,221,'New strand (5′→3′)',{'font-size':15,fill:'#0b6e61','font-weight':600});
+  [...TPL].forEach((c,i)=>S(tile(g1,c,38,{grey:1}),{x:x0+i*dx,y:270}));
+  E('rect',{x:x0-24,y:190,width:3*dx-2,height:50,rx:8,fill:'none',stroke:'#495057','stroke-dasharray':'5 4'},g1);TX(g1,x0+dx,181,'primer (starting point)',{'text-anchor':'middle','font-size':13,fill:'#495057'});
+  const ns=[...NEW].map((c,i)=>{const t=tile(g1,c,38);S(t,{x:x0+i*dx,y:i<3?215:165,o:i<3?1:0});return t});
+  const pol=G(g1);E('ellipse',{rx:40,ry:20,fill:'#b197fc',opacity:.88},pol);TX(pol,0,5,'DNA pol.',{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#fff'});S(pol,{x:x0+2.5*dx,y:243,o:0});
+  const pool=G(g1);TX(pool,40,350,'dNTPs  (A T G C)',{'font-size':14,fill:'#495057'});TX(pool,40,394,'ddNTPs ★ (dye, no 3′-OH)',{'font-size':14,fill:'#c92a2a','font-weight':600});
+  ['A','T','G','C'].forEach((c,k)=>{S(tile(pool,c,28),{x:300+k*44,y:345});S(tile(pool,c,28,{solid:1}),{x:300+k*44,y:389})});
+  TX(pool,500,350,'→ chain keeps growing',{'font-size':14,fill:'#2b8a3e'});TX(pool,500,394,'→ chain STOPS here (random)',{'font-size':14,fill:'#c92a2a'});S(pool,{o:0});
+  const rows=[];for(let k=4;k<=10;k++){const r=G(svg);for(let i=0;i<k;i++){const last=i===k-1;S(tile(r,NEW[i],last?34:27,{solid:last}),{x:310+i*33,y:0})}
+    TX(r,262,6,k+' nt',{'text-anchor':'end','font-size':14,fill:'#495057'});TX(r,310+k*33+6,6,'ddNTP-'+NEW[k-1]+' ★',{'font-size':14,fill:COL[NEW[k-1]],'font-weight':700});S(r,{x:0,y:72+(k-4)*47,o:0});rows.push(r)}
+  const cap=G(svg);E('rect',{x:112,y:40,width:36,height:300,rx:18,fill:'#f1f3f5',stroke:'#868e96','stroke-width':2.5},cap);
+  TX(cap,130,28,'− (sample in)',{'text-anchor':'middle','font-size':12,fill:'#495057'});TX(cap,130,372,'+',{'text-anchor':'middle','font-size':16,fill:'#495057'});TX(cap,130,20,'',{});
+  const las=E('line',{x1:40,y1:322,x2:220,y2:322,stroke:'#e03131','stroke-width':3},cap);TX(cap,40,312,'laser',{'font-size':12,fill:'#e03131'});TX(cap,40,342,'detector',{'font-size':12,fill:'#495057'});TX(cap,130,400,'capillary gel electrophoresis',{'text-anchor':'middle','font-size':13,fill:'#495057'});
+  const bands=[];for(let k=4;k<=10;k++){const b=E('rect',{x:-13,y:-4,width:26,height:8,rx:3,fill:COL[NEW[k-1]]},cap);S(b,{x:130,y:62+(k-4)*5,o:0});b._k=k;bands.push(b)}
+  S(cap,{o:0});
+  const ch=G(svg);E('line',{x1:230,y1:322,x2:910,y2:322,stroke:'#adb5bd','stroke-width':2},ch);TX(ch,232,60,'Chromatogram (electropherogram)',{'font-size':15,'font-weight':700,fill:'#14302c'});TX(ch,910,60,'time →  (short fragments exit first)',{'text-anchor':'end','font-size':12,fill:'#587670'});
+  const peaks=[],pl=[];[150,105,130,175,120,145,98].forEach((h,j)=>{const k=j+4,px=290+j*92,c=COL[NEW[k-1]];
+    const p=E('path',{d:`M-32,0 Q-14,0 -7,${-h*.9} Q0,${-h*1.2} 7,${-h*.9} Q14,0 32,0 Z`,fill:c,'fill-opacity':.28,stroke:c,'stroke-width':2.5},ch);S(p,{x:px,y:322,sy:0});peaks.push(p);
+    const l=TX(ch,px,360,NEW[k-1],{'text-anchor':'middle','font-size':30,'font-weight':800,fill:c,class:'mono'});S(l,{o:0});pl.push(l)});
+  const ro=TX(ch,570,408,'Sequence read (from base 4):  C – C – G – T – A – G – C',{'text-anchor':'middle','font-size':16,'font-weight':600,fill:'#0b6e61'});S(ro,{o:0});S(ch,{o:0});
+  const steps=[
+   {t:'Template, primer and polymerase',en:'Sanger sequencing copies the template with DNA polymerase. A short primer anneals to the template and tells the enzyme where to start.',vi:'Sanger sao chép mạch khuôn bằng DNA polymerase. Đoạn mồi (primer) bám vào mạch khuôn và chỉ cho enzyme vị trí bắt đầu.'},
+   {t:'Extension with dNTPs … and a little ddNTP',en:'The reaction contains normal dNTPs plus a small amount of fluorescent ddNTPs (each base has its own dye colour). Polymerase adds bases one by one – but occasionally it grabs a ddNTP.',vi:'Phản ứng có dNTP thường và một ít ddNTP gắn huỳnh quang (mỗi loại base một màu). Polymerase gắn từng base; thỉnh thoảng nó lấy phải một ddNTP.'},
+   {t:'ddNTP = dead end → fragments of every length',en:'A ddNTP has no 3′-OH, so no further base can be attached: the chain terminates. Because this happens at random, we get one fragment for every position – and the last base of each fragment carries a coloured dye.',vi:'ddNTP không có nhóm 3′-OH nên không thể nối thêm base: chuỗi dừng lại. Vì xảy ra ngẫu nhiên nên ta có đoạn ở mọi độ dài – base cuối của mỗi đoạn mang một màu huỳnh quang.'},
+   {t:'Capillary electrophoresis sorts fragments by size',en:'The fragments are pulled through a capillary gel by an electric field. Short fragments move faster, so fragments leave in order of length: 1 nt difference is enough to separate them.',vi:'Các đoạn được kéo qua gel mao quản bằng điện trường. Đoạn ngắn chạy nhanh hơn nên ra theo thứ tự độ dài – chỉ cần hơn kém 1 nucleotide là tách được.'},
+   {t:'Laser reads the colours → chromatogram → sequence',en:'As each fragment passes the detector, a laser excites its dye and the colour is recorded. Colour sequence = base sequence. Sanger reads are long (~800–1000 bp) and very accurate, but only one fragment is read per capillary.',vi:'Khi mỗi đoạn đi qua đầu dò, tia laser kích thích chất màu và máy ghi lại màu sắc. Chuỗi màu = chuỗi base. Read của Sanger dài (~800–1000 bp) và rất chính xác nhưng mỗi mao quản chỉ đọc một đoạn.'}];
+  return{steps,set(i){
+    S(g1,{o:i<2?1:0});S(pool,{o:i===1?1:0});
+    ns.forEach((t,k)=>{if(k>=3)S(t,{y:i>=1?215:165,o:i>=1?1:0,d:i>=1?(k-3)*.45:0})});
+    S(pol,{x:i>=1?x0+10.4*dx:x0+2.5*dx,o:i===1?1:0,dur:i===1?3.4:1.1});
+    rows.forEach((r,k)=>S(r,{o:i===2?1:0,d:i===2?.3+k*.35:0}));
+    S(cap,{o:i>=3?1:0});
+    bands.forEach(b=>{const k=b._k;if(i<3)S(b,{x:130,y:62+(k-4)*5,o:0});else if(i===3)S(b,{x:130,y:250-(k-4)*28,o:1,dur:2.2});else S(b,{x:130,y:322,o:0,d:(k-4)*1.2,dur:1.1})});
+    S(ch,{o:i>=4?1:0});
+    peaks.forEach((p,j)=>S(p,{sy:i>=4?1:0,d:i>=4?j*1.2+.9:0,dur:.9}));pl.forEach((l,j)=>S(l,{o:i>=4?1:0,d:i>=4?j*1.2+1.0:0}));S(ro,{o:i>=4?1:0,d:i>=4?9.2:0});
+  }}
+}});
+
+/* ---------- 3 Illumina ---------- */
+scenes.push({title:'2b · Next-generation sequencing (Illumina)',sub:'Millions of fragments read in parallel',build(svg){
+  const rnd=rng(11);const W=[100,120,90,110,100,130,90,100];const xs=[];let ac=60;W.forEach(w=>{xs.push(ac);ac+=w});
+  const side=G(svg);
+  const lab0=TX(side,60,52,'Genomic DNA (millions of base pairs)',{'font-size':15,'font-weight':700,fill:'#14302c'});
+  const cut=TX(side,60,192,'✂ fragmentation (sonication / enzyme) → 200–500 bp pieces + adapters',{'font-size':14,fill:'#495057'});S(cut,{o:0});
+  const pcs=W.map((w,i)=>{const g=G(side);E('rect',{x:0,y:-6,width:w-2,height:12,rx:3,fill:'#5c7cfa'},g);const cl=E('rect',{x:-9,y:-10,width:9,height:20,rx:2,fill:'#7048e8'},g),cr=E('rect',{x:w-2,y:-10,width:9,height:20,rx:2,fill:'#12b886'},g);S(cl,{o:0});S(cr,{o:0});g._c=[cl,cr];S(g,{x:xs[i],y:112});return g});
+  const surf=G(side);E('rect',{x:50,y:338,width:860,height:16,rx:4,fill:'#adb5bd'},surf);for(let x=60;x<=900;x+=16){E('line',{x1:x,y1:338,x2:x,y2:324,stroke:Math.round((x-60)/16)%2?'#12b886':'#7048e8','stroke-width':3,'stroke-linecap':'round'},surf)}
+  TX(surf,60,376,'Flow-cell surface: lawn of short oligos that match the adapters',{'font-size':14,fill:'#495057'});S(surf,{o:0});
+  const arcs=G(side);[[420,540,0],[400,520,1.1],[440,560,1.1],[380,500,2.2],[420,540,2.2],[460,580,2.2],[500,620,2.2]].forEach(([a,b,d],k)=>{const p=E('path',{d:`M${a},326 C${a},230 ${b},230 ${b},326`,fill:'none',stroke:'#7048e8','stroke-width':4,opacity:0},arcs);p._d=d});
+  const abx=TX(arcs,480,214,'bridge amplification:  1 → 2 → 4 → … ~1000 identical copies',{'text-anchor':'middle','font-size':14,'font-weight':600,fill:'#7048e8'});
+  S(arcs,{o:0});
+  // top view
+  const top=G(svg);E('rect',{x:60,y:60,width:420,height:330,rx:14,fill:'#0b1d2b'},top);TX(top,76,86,'Flow-cell lane (camera image, top view)',{'font-size':13,fill:'#8fb4c9'});
+  const CP=[[130,170],[270,170],[410,170],[130,300],[270,300],[410,300]];const RD=['ACG','TTA','GCA','CAT','AGT','TGC'];
+  const cl=CP.map(([cx,cy])=>{const dots=[];for(let k=0;k<30;k++){const a=rnd()*6.28,d=Math.sqrt(rnd())*30;const e=E('circle',{cx:cx+d*Math.cos(a),cy:cy+d*Math.sin(a),r:3.1,fill:'#6c8aa6'},top);S(e,{o:0});dots.push(e)}return dots});
+  CP.forEach(([cx,cy],i)=>TX(top,cx,cy+52,'cluster '+(i+1),{'text-anchor':'middle','font-size':11,fill:'#8fb4c9'}));
+  const flash=E('rect',{x:60,y:60,width:420,height:330,rx:14,fill:'#fff',opacity:0},top);flash.style.pointerEvents='none';
+  S(top,{o:0});
+  const n3=G(svg);E('rect',{x:530,y:110,width:390,height:150,rx:14,fill:'#e6f6f3'},n3);TX(n3,550,146,'1 cluster = 1 original fragment',{'font-size':17,'font-weight':800,fill:'#0b6e61'});TX(n3,550,176,'≈ 1000 identical copies → bright enough',{'font-size':14,fill:'#14302c'});TX(n3,550,198,'for the camera to see.',{'font-size':14,fill:'#14302c'});TX(n3,550,228,'One lane holds millions of clusters.',{'font-size':14,'font-weight':600,fill:'#14302c'});S(n3,{o:0});
+  const rp=G(svg);TX(rp,530,76,'Reads, built one base per cycle',{'font-size':15,'font-weight':700,fill:'#14302c'});
+  const rt=RD.map((r,i)=>{TX(rp,530,119+i*38,'cluster '+(i+1),{'font-size':13,fill:'#495057'});return[...r].map((c,k)=>{const t=tile(rp,c,30,{solid:1});S(t,{x:640+k*38,y:114+i*38,o:0});return t})});
+  S(rp,{o:0});
+  const lg=G(svg);TX(lg,530,346,'Reversible terminator nucleotides:',{'font-size':13,'font-weight':700,fill:'#14302c'});
+  ['A','T','G','C'].forEach((c,k)=>{S(tile(lg,c,26,{solid:1}),{x:550+k*66,y:372});E('rect',{x:550+k*66+13,y:357,width:9,height:14,fill:'#212529'},lg)});
+  TX(lg,530,412,'■ = 3′ blocker → only ONE base per cycle;  colour = which base',{'font-size':12.5,fill:'#495057'});S(lg,{o:0});
+  const fq=G(svg);const fl=['@read_1/1','ACGTTGCAGCTTAGCCTAGG…','+','IIIIHHHGGFFFEEDDCCBB…'];
+  E('rect',{x:530,y:60,width:400,height:150,rx:12,fill:'#0b1d2b'},fq);fl.forEach((s,i)=>TX(fq,546,92+i*30,s,{'font-size':15,fill:['#8fb4c9','#8ce99a','#8fb4c9','#ffd43b'][i],class:'mono'}));TX(fq,546,198,'FASTQ: bases + quality score (Phred) for each base',{'font-size':12.5,fill:'#c5dbe8'});
+  const pe=G(fq);TX(pe,530,250,'Paired-end reads (both ends of one fragment)',{'font-size':14,'font-weight':700,fill:'#14302c'});E('rect',{x:550,y:296,width:360,height:12,rx:4,fill:'#5c7cfa'},pe);E('rect',{x:550,y:290,width:9,height:24,fill:'#7048e8'},pe);E('rect',{x:901,y:290,width:9,height:24,fill:'#12b886'},pe);
+  E('line',{x1:560,y1:278,x2:660,y2:278,stroke:'#e03131','stroke-width':4},pe);arrowHead(pe,660,278,1,'#e03131');TX(pe,560,270,'read 1',{'font-size':12,fill:'#e03131'});E('line',{x1:900,y1:278,x2:800,y2:278,stroke:'#f08c00','stroke-width':4},pe);arrowHead(pe,800,278,-1,'#f08c00');TX(pe,900,270,'read 2',{'font-size':12,fill:'#f08c00','text-anchor':'end'});
+  TX(pe,730,334,'unsequenced middle (known distance apart)',{'text-anchor':'middle','font-size':12.5,fill:'#587670'});TX(pe,530,372,'→ pairs help order contigs later (scaffolding)',{'font-size':13,fill:'#0b6e61','font-weight':600});
+  S(fq,{o:0});
+  const steps=[
+   {t:'Break the genome into fragments and add adapters',en:'A genome is far too long to read in one piece, so the DNA is sheared into small fragments (a few hundred bp). Short, known adapter sequences are attached to both ends – they are the “handles” used in the next steps.',vi:'Hệ gen quá dài để đọc một lần nên DNA được cắt thành các đoạn nhỏ (vài trăm bp). Hai đầu mỗi đoạn được gắn đoạn adapter đã biết – đây là “tay nắm” cho các bước sau.'},
+   {t:'Fragments hybridise to the flow cell',en:'The fragments are denatured and loaded on a flow cell. Their adapters pair with complementary oligos fixed on the glass surface, so every fragment is anchored at a random spot.',vi:'Các đoạn được biến tính và nạp lên flow cell. Adapter bắt cặp với oligo bổ sung gắn trên bề mặt kính, nhờ đó mỗi đoạn được cố định tại một vị trí ngẫu nhiên.'},
+   {t:'Bridge amplification',en:'The anchored fragment bends over and pairs with a neighbouring oligo, forming a bridge. Polymerase copies it, the bridge is denatured, and the cycle repeats – the number of copies doubles each round.',vi:'Đoạn DNA cong xuống bắt cặp với oligo bên cạnh tạo thành “cầu”. Polymerase sao chép, cầu bị tách ra và chu kỳ lặp lại – số bản sao tăng gấp đôi mỗi vòng.'},
+   {t:'Clusters: one fragment → ~1000 identical copies',en:'Seen from above, each original fragment has become a tight cluster of identical molecules. A cluster is bright enough for the camera to detect its fluorescence. A single lane contains millions of clusters.',vi:'Nhìn từ trên xuống, mỗi đoạn gốc đã thành một cụm các phân tử giống hệt nhau, đủ sáng để camera ghi nhận. Một lane có hàng triệu cụm.'},
+   {t:'Sequencing by synthesis – cycle 1',en:'All four fluorescent, terminator-blocked nucleotides are added together. Each cluster incorporates exactly one base, the camera takes a picture, and the colour of every cluster = its first base.',vi:'Bốn loại nucleotide huỳnh quang có nhóm chặn được thêm vào cùng lúc. Mỗi cụm gắn đúng một base, camera chụp ảnh, màu của mỗi cụm = base thứ nhất.'},
+   {t:'Cycle 2',en:'The dye and the blocker are chemically removed, so the next nucleotide can be added. New picture → the second base of every cluster is recorded. All millions of clusters are read at the same time.',vi:'Chất màu và nhóm chặn được cắt bỏ để gắn nucleotide tiếp theo. Ảnh mới → ghi nhận base thứ hai của mọi cụm. Hàng triệu cụm được đọc đồng thời.'},
+   {t:'Cycle 3 … and so on',en:'Each cycle adds one letter to every read. After 100–300 cycles we have millions of reads, each as long as the number of cycles.',vi:'Mỗi chu kỳ thêm một chữ cái vào mọi read. Sau 100–300 chu kỳ ta có hàng triệu read, độ dài bằng số chu kỳ.'},
+   {t:'Output: FASTQ reads (often paired-end)',en:'The data are stored as FASTQ: the bases plus a quality score for every base. Reading both ends of a fragment gives paired reads, whose known spacing helps assembly later. Illumina reads are short (~150 bp) but extremely accurate and cheap per base.',vi:'Dữ liệu lưu dạng FASTQ: các base kèm điểm chất lượng cho từng base. Đọc cả hai đầu của đoạn cho ra cặp read có khoảng cách đã biết, giúp ích khi ghép. Read Illumina ngắn (~150 bp) nhưng rất chính xác và rẻ.'}];
+  return{steps,set(i){
+    S(side,{o:i<=2?1:0});S(top,{o:i>=3?1:0});
+    pcs.forEach((g,k)=>{
+      if(i===0){S(g,{x:xs[k]+k*7-10,y:(k%2?150:112)+((k*37)%11-5),r:(k%3-1)*3,s:1});g._c.forEach(c=>S(c,{o:1,d:1.3}))}
+      else if(i===1){S(g,{x:70+k*105,y:314,r:0,s:.5,o:1});}
+      else if(i===2){S(g,{x:70+k*105,y:314,r:0,s:.5,o:.2})}});
+    S(cut,{o:i===0?1:0,d:i===0?.6:0});S(lab0,{o:i===0?1:0});S(surf,{o:i>=1?1:0});
+    arcs.children&&[...arcs.children].forEach(p=>{if(p._d!==undefined)S(p,{o:i===2?1:0,d:i===2?p._d:0})});S(arcs,{o:i===2?1:0});S(abx,{o:i===2?1:0,d:i===2?2.4:0});
+    cl.forEach((ds,ci)=>ds.forEach(e=>{let c='#6c8aa6',o=i>=3?1:0;if(i>=4&&i<=6)c=COL[RD[ci][i-4]];if(i===7){o=.35}S(e,{o,fill:c})}));
+    if(i>=4&&i<=6){flash.classList.remove('fl');void flash.getBoundingClientRect();flash.classList.add('fl');flash.style.opacity=''}
+    S(n3,{o:i===3?1:0,d:i===3?.6:0});S(rp,{o:i>=4&&i<=6?1:0});rt.forEach(r=>r.forEach((t,k)=>S(t,{o:(i>=4&&i<=6&&k<=i-4)?1:0,d:i>=4?.5:0})));
+    S(lg,{o:i>=4&&i<=6?1:0});S(fq,{o:i===7?1:0});
+  }}
+}});
+
+/* ---------- 4 Assembly basics ---------- */
+scenes.push({title:'3a · Read assembly – how overlaps rebuild a sequence',sub:'A jigsaw puzzle with letters',build(svg){
+  const G0='AGCTATAGCGCTATCGTAGCTAGCTTAG',L=10,st=[0,4,8,12,16,18],cw=24,X0=150;
+  const tint=['#e7f5ff','#fff0f6','#ebfbee','#fff9db','#f3f0ff','#e3fafc'];
+  const hl=[];for(let j=0;j<5;j++){const r=E('rect',{x:X0+st[j+1]*cw,y:95+j*36-14,width:(st[j]+L-st[j+1])*cw,height:64,fill:'#fcc419',opacity:.5},svg);S(r,{o:0});hl.push(r)}
+  const errCol=E('rect',{x:X0+8*cw,y:76,width:cw,height:330,fill:'#ff6b6b',opacity:.15,stroke:'#e03131','stroke-dasharray':'4 3'},svg);S(errCol,{o:0});
+  const errLab=TX(svg,X0+8*cw+12,68,'error outvoted 2 : 1',{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#e03131'});S(errLab,{o:0});
+  const scat=[[40,70,-8],[420,66,5],[210,150,10],[500,205,-12],[80,250,6],[330,285,-5]];
+  const reads=st.map((s,j)=>{let str=G0.slice(s,s+L);let bad=-1;if(j===1){str=str.slice(0,4)+'G'+str.slice(5);bad=4}
+    const g=G(svg);E('rect',{x:0,y:-14,width:L*cw,height:28,rx:7,fill:tint[j],stroke:'#9db2ad','stroke-width':1.5},g);
+    [...str].forEach((c,k)=>{if(k===bad){E('rect',{x:k*cw+1,y:-12,width:cw-2,height:24,rx:5,fill:'#ffc9c9'},g)}TX(g,k*cw+cw/2,7,c,{'text-anchor':'middle','font-size':20,'font-weight':700,fill:k===bad?'#e03131':COL[c],class:'mono'})});
+    const lb=TX(svg,20,95+j*36+6,'read '+(j+1),{'font-size':13,fill:'#587670'});S(lb,{o:0});g._lb=lb;S(g,{x:scat[j][0],y:scat[j][1],r:scat[j][2]});return g});
+  const cons=G(svg);E('rect',{x:X0-2,y:318,width:28*cw+4,height:34,rx:8,fill:'#e6f6f3',stroke:'#0f9d8a','stroke-width':2},cons);
+  const cl=[...G0].map((c,i)=>{const t=TX(cons,X0+i*cw+cw/2,342,c,{'text-anchor':'middle','font-size':22,'font-weight':800,fill:COL[c],class:'mono'});S(t,{o:0});return t});
+  const cLab=TX(svg,20,342,'Consensus',{'font-size':14,'font-weight':700,fill:'#0b6e61'});S(cLab,{o:0});S(cons,{o:0});
+  const cov=[];const cnt=[...G0].map((_,p)=>st.filter(s=>p>=s&&p<s+L).length);
+  cnt.forEach((c,p)=>{const b=E('rect',{x:X0+p*cw+3,y:-12,width:cw-6,height:12,fill:'#74c0fc'},svg);S(b,{x:0,y:432,sy:0});b._c=c;cov.push(b)});
+  const covL=TX(svg,20,420,'coverage',{'font-size':13,fill:'#587670'});S(covL,{o:0});
+  const rep=G(svg);[1,9].forEach(s=>{E('rect',{x:X0+s*cw-2,y:316,width:5*cw+4,height:38,rx:8,fill:'rgba(112,72,232,.14)',stroke:'#7048e8','stroke-width':3},rep)});
+  E('path',{d:`M${X0+3.5*cw},360 C${X0+3.5*cw},410 ${X0+11.5*cw},410 ${X0+11.5*cw},360`,fill:'none',stroke:'#7048e8','stroke-width':3,'stroke-dasharray':'6 5'},rep);TX(rep,X0+7.5*cw,428,'the same 5-letter repeat (GCTAT) occurs twice!',{'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#7048e8'});S(rep,{o:0});
+  const steps=[
+   {t:'Millions of short, unordered reads',en:'The sequencer gives us pieces of the genome in random order. We do not know where each read came from – like a shredded page.',vi:'Máy giải trình tự trả về các đoạn của hệ gen theo thứ tự ngẫu nhiên. Ta không biết mỗi read đến từ đâu – giống một trang giấy bị xé vụn.'},
+   {t:'Find overlaps',en:'Assembly software compares reads and looks for identical ends (yellow). Reads that overlap must be neighbours in the genome, so they can be lined up. Note the red letter: a sequencing error in read 2.',vi:'Phần mềm ghép so sánh các read và tìm đầu giống hệt nhau (màu vàng). Các read chồng lấp phải nằm cạnh nhau trong hệ gen nên được xếp thẳng hàng. Chú ý chữ đỏ: lỗi giải trình tự ở read 2.'},
+   {t:'Merge into a consensus sequence',en:'The overlapping reads are merged, and the genome sequence appears. Where reads disagree, the consensus follows the majority.',vi:'Các read chồng lấp được gộp lại và chuỗi hệ gen hiện ra. Chỗ nào các read khác nhau thì lấy theo đa số.'},
+   {t:'Coverage (depth) corrects errors',en:'Coverage is how many reads cover each base. Read 2 says G, but reads 1 and 3 both say C – the error is outvoted. This is why we sequence every base many times (often 50–100×).',vi:'Độ phủ (coverage) là số read phủ lên mỗi base. Read 2 ghi G nhưng read 1 và 3 đều ghi C – lỗi bị loại theo đa số. Vì vậy mỗi base được đọc nhiều lần (thường 50–100×).'},
+   {t:'The enemy of assembly: repeats',en:'If a repeated sequence is longer than the reads, the assembler cannot tell which copy a read belongs to and the assembly breaks. That is why a draft genome ends up as several contigs instead of one chromosome.',vi:'Nếu đoạn lặp dài hơn read, phần mềm không biết read thuộc bản sao nào và quá trình ghép bị đứt. Vì thế bộ gen nháp gồm nhiều contig chứ không phải một nhiễm sắc thể liền.'}];
+  return{steps,set(i){
+    reads.forEach((g,j)=>{if(i===0)S(g,{x:scat[j][0],y:scat[j][1],r:scat[j][2],o:1});else S(g,{x:X0+st[j]*cw,y:95+j*36,r:0,o:i===4?.2:1,d:i===1?j*.25:0});S(g._lb,{o:i>=1&&i<4?1:0,d:i===1?1.2:0})});
+    hl.forEach(r=>S(r,{o:i===1?.5:(i===2?.25:0),d:i===1?1.6:0}));
+    cl.forEach((t,k)=>S(t,{o:i>=2?1:0,d:i===2?k*.06:0}));S(cons,{o:i>=2?1:0});S(cLab,{o:i>=2?1:0});
+    cov.forEach((b,k)=>S(b,{sy:i===3?b._c:0,d:i===3?k*.03:0}));S(covL,{o:i===3?1:0});S(errCol,{o:i===3?.18:0,d:i===3?1.2:0});S(errLab,{o:i===3?1:0,d:i===3?1.4:0});
+    S(rep,{o:i===4?1:0,d:i===4?.5:0});
+  }}
+}});
+
+/* ---------- 5 Contigs -> genome ---------- */
+scenes.push({title:'3b · From reads to a draft genome',sub:'Contigs → scaffolds → finishing · de novo vs reference-based',build(svg){
+  const X=60,rnd=rng(5);const spans=[[0,150],[185,385],[420,560],[595,755],[790,840]],wd=spans.map(s=>s[1]-s[0]),scr=[2,4,0,3,1],flip=[1,0,1,0,1];
+  const sx=[];let ac=X;scr.forEach(ci=>{sx[ci]=ac;ac+=wd[ci]+34});
+  const unk=G(svg);E('line',{x1:X,y1:100,x2:X+840,y2:100,stroke:'#868e96','stroke-width':5,'stroke-dasharray':'2 8','stroke-linecap':'round'},unk);TX(unk,X,86,'unknown genome – reads come from random positions (gaps = no reads)',{'font-size':13,fill:'#587670'});
+  const rc=['#e03131','#f08c00','#1971c2','#2f9e44'];const reads=[];let idx=0;
+  spans.forEach(([a,b])=>{const n=Math.round((b-a)/9);for(let k=0;k<n;k++){const len=Math.min(60,b-a-2),s=a+rnd()*(b-a-len);const r=E('rect',{x:0,y:-3,width:len,height:6,rx:3,fill:rc[idx%4]},svg);S(r,{x:X+s,y:128+(idx%8)*10,o:0});r._y=128+(idx%8)*10;idx++;reads.push(r)}});
+  const contigs=spans.map((s,ci)=>{const g=G(svg),w=wd[ci];const body=E('rect',{x:0,y:-12,width:w,height:24,rx:5,fill:'#4dabf7'},g);const hr=E('polygon',{points:`${w},-12 ${w+13},0 ${w},12`,fill:'#4dabf7'},g),hl=E('polygon',{points:`0,-12 -13,0 0,12`,fill:'#4dabf7'},g);TX(g,w/2,5,'contig '+(ci+1),{'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#fff'});g._b=[body,hr,hl];S(g,{x:sx[ci],y:270,o:0});return g});
+  const gaps=[0,1,2,3].map(ci=>{const g=G(svg);const r=E('rect',{x:0,y:-11,width:34,height:22,rx:3,fill:'#868e96'},g);TX(g,17,4,'NNN',{'text-anchor':'middle','font-size':11,'font-weight':700,fill:'#fff'});S(g,{x:X+spans[ci][1],y:270,o:0});g._r=r;return g});
+  const arcs=[0,1,2,3].map(ci=>{const a=X+spans[ci][1]-18,b=X+spans[ci+1][0]+18;const p=E('path',{d:`M${a},256 Q${(a+b)/2},196 ${b},256`,fill:'none',stroke:'#7048e8','stroke-width':3,'stroke-dasharray':'6 4'},svg);S(p,{o:0});return p});
+  const pl=TX(svg,X+300,206,'paired reads bridge the gaps',{'font-size':13,'font-weight':700,fill:'#7048e8'});S(pl,{o:0});
+  const met=TX(svg,480,350,'',{'text-anchor':'middle','font-size':18,'font-weight':700,fill:'#0b6e61'});const met2=TX(svg,480,376,'',{'text-anchor':'middle','font-size':13,fill:'#587670'});
+  // reference-based group
+  const M=G(svg);TX(M,X,70,'Reference genome (closely related species)',{'font-size':14,'font-weight':700,fill:'#2b8a3e'});
+  [[X,440],[X+580,260]].forEach(([x,w])=>E('rect',{x,y:84,width:w,height:14,rx:4,fill:'#2f9e44'},M));E('rect',{x:X+440,y:82,width:140,height:18,rx:4,fill:'none',stroke:'#adb5bd','stroke-dasharray':'4 3'},M);TX(M,X+510,76,'not in reference',{'text-anchor':'middle','font-size':11,fill:'#868e96'});
+  const rr=rng(33);const mp=[];for(let k=0;k<16;k++){let x;do{x=X+rr()*760}while(x>X+380&&x<X+590);const r=E('rect',{x:0,y:-4,width:80,height:8,rx:4,fill:'#e03131'},M);S(r,{x,y:-30,o:0});r._x=x;r._y=130+(k%5)*14;if(k%4===1){E('rect',{x:30,y:-6,width:4,height:12,fill:'#212529'},r)}mp.push(r)}
+  const un=[0,1,2].map(k=>{const g=G(M);E('rect',{x:0,y:-4,width:80,height:8,rx:4,fill:'#f08c00'},g);TX(g,40,-8,'?',{'text-anchor':'middle','font-size':14,'font-weight':800,fill:'#f08c00'});S(g,{x:X+450+k*20,y:130+k*26,o:0});return g});
+  const unl=TX(M,X+400,248,'unmapped reads = a novel region (maybe a new BGC!)',{'font-size':13,'font-weight':700,fill:'#e8590c'});S(unl,{o:0});
+  E('path',{d:'M200,222 l0,40 m-8,-8 l8,8 l8,-8',stroke:'#495057','stroke-width':3,fill:'none'},M);
+  [[X,440],[X+580,260]].forEach(([x,w])=>E('rect',{x,y:278,width:w,height:16,rx:4,fill:'#2f9e44'},M));[X+90,X+250,X+680].forEach(x=>E('rect',{x,y:272,width:4,height:28,fill:'#212529'},M));TX(M,X+520,291,'✗ lost',{'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#e03131'});TX(M,X,316,'Result: consensus + variants (black ticks). Fast – but only what the reference already contains.',{'font-size':13,fill:'#14302c'});
+  TX(M,X,352,'De novo:  ✓ new species  ✓ finds novel genes   ✗ needs more coverage & computing',{'font-size':13.5,'font-weight':600,fill:'#0b6e61'});TX(M,X,376,'Reference-based:  ✓ fast and accurate for known species   ✗ biased – misses novel regions',{'font-size':13.5,'font-weight':600,fill:'#c2410c'});
+  S(M,{o:0});
+  const steps=[
+   {t:'Reads cover the genome unevenly',en:'Reads come from random places. Some regions get many reads, a few get none – leaving gaps (e.g. repeats or extreme GC regions that sequence badly).',vi:'Read đến từ các vị trí ngẫu nhiên. Có vùng nhiều read, có vùng không có read nào – tạo khoảng trống (ví dụ vùng lặp hoặc vùng GC cao khó đọc).'},
+   {t:'Overlap → contigs',en:'Overlapping reads are merged into contiguous sequences, the contigs. Their order and orientation are still unknown, and one genome is now split into several pieces.',vi:'Các read chồng lấp được ghép thành các chuỗi liền, gọi là contig. Thứ tự và chiều của chúng vẫn chưa biết, và một hệ gen đang bị chia thành nhiều mảnh.'},
+   {t:'Scaffolding with paired reads',en:'Read pairs whose two ends land on different contigs prove that those contigs are neighbours, in a known order and orientation. The contigs are joined into a scaffold; unknown stretches are written as N.',vi:'Cặp read có hai đầu rơi vào hai contig khác nhau chứng minh hai contig đó nằm cạnh nhau với thứ tự và chiều xác định. Các contig được nối thành scaffold; đoạn chưa biết được ghi bằng N.'},
+   {t:'Gap closing / finishing',en:'Gaps are filled by local re-assembly or by PCR + Sanger sequencing. A finished genome is one sequence per chromosome. Many projects stop at a draft (SPAdes assembly of B16437) – good enough for antiSMASH.',vi:'Khoảng trống được lấp bằng ghép cục bộ hoặc PCR + Sanger. Bộ gen hoàn chỉnh là một chuỗi cho mỗi nhiễm sắc thể. Nhiều dự án dừng ở bản nháp (ghép SPAdes của B16437) – vẫn đủ để chạy antiSMASH.'},
+   {t:'Alternative: reference-based assembly',en:'If a close relative is already sequenced, reads can be mapped onto it instead of assembled from scratch. This is fast and good for finding SNPs – but reads from regions absent in the reference simply fail to map. For genome mining, those novel regions are often the most interesting, so de novo assembly is preferred.',vi:'Nếu đã có hệ gen của loài gần, ta có thể gióng các read lên đó thay vì ghép từ đầu. Cách này nhanh và tốt để tìm SNP – nhưng read thuộc vùng không có trong tham chiếu sẽ không gióng được. Trong genome mining, các vùng mới lạ này thường thú vị nhất nên ưu tiên ghép de novo.'}];
+  return{steps,set(i){
+    const m=i===4;S(M,{o:m?1:0});S(unk,{o:i===0?1:0});
+    reads.forEach((r,k)=>S(r,{o:i===0?.9:(i===1?.12:0),d:i===0?k*.01:0}));
+    contigs.forEach((g,ci)=>{const ord=i>=2;S(g,{x:ord?X+spans[ci][0]:sx[ci],y:270,o:i>=1&&i<=3?1:0,d:i===1?.8:0});g._b.forEach((b,k)=>{b.style.fill=i===3?'#fcc419':'#4dabf7'; if(k===1)b.style.opacity=ord||!flip[ci]?1:0;if(k===2)b.style.opacity=(!ord&&flip[ci])?1:0})});
+    gaps.forEach((g,k)=>{S(g,{o:i>=2&&i<=3?1:0,d:i===2?1.2:0});g._r.style.fill=i===3?'#fcc419':'#868e96'});
+    arcs.forEach((p,k)=>S(p,{o:i===2?1:0,d:i===2?1.4+k*.2:0}));S(pl,{o:i===2?1:0,d:i===2?1.8:0});
+    met.textContent=['','5 contigs – order & orientation unknown','1 scaffold – ordered & oriented, gaps = N','1 finished sequence – ready for gene prediction & antiSMASH',''][i];
+    met2.textContent=['','','','Real Illumina drafts often contain dozens to hundreds of contigs',''][i];
+    if(i===2)met2.textContent='';
+    mp.forEach((r,k)=>S(r,{x:r._x,y:m?r._y:-30,o:m?1:0,d:m?k*.12:0}));un.forEach((g,k)=>S(g,{o:m?1:0,d:m?2.4:0}));S(unl,{o:m?1:0,d:m?2.8:0});
+  }}
+}});
+
+/* ---------- 6 Gene prediction ---------- */
+scenes.push({title:'4 · Gene prediction & annotation',sub:'Finding open reading frames in the assembled sequence',build(svg){
+  const CT={};const b='TCAG';const aa='FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG';
+  for(let i=0;i<4;i++)for(let j=0;j<4;j++)for(let k=0;k<4;k++)CT[b[i]+b[j]+b[k]]=aa[16*i+4*j+k];
+  const SEQ='GCATTAGCTAC'+'ATGAGCAAAGGCCTGATCGCTGAAACGGGCTAA'+'TTGCAGCGTTCAAGT';const S0=11,E0=44,cw=15.2,x0=36,yL=170;
+  const hdr=TX(svg,36,66,'>contig_1   (FASTA format)',{'font-size':15,fill:'#587670',class:'mono'});
+  const letters=[...SEQ].map((c,i)=>{const t=TX(svg,x0+i*cw+cw/2,yL,c,{'text-anchor':'middle','font-size':21,'font-weight':700,fill:COL[c],class:'mono'});S(t,{o:0});return t});
+  const bgs=[];for(let k=0;k<(E0-S0)/3;k++){const r=E('rect',{x:x0+(S0+3*k)*cw,y:yL-22,width:3*cw,height:32,rx:5,fill:k%2?'#ced4f9':'#e5dbff'},svg);S(r,{o:0});bgs.push(r)}
+  svg.insertBefore(hdr,svg.firstChild);bgs.forEach(r=>svg.insertBefore(r,letters[0]));
+  const win=E('rect',{x:0,y:yL-24,width:3*cw+4,height:36,rx:6,fill:'none',stroke:'#2b8a3e','stroke-width':4},svg);S(win,{x:x0-2,y:0,o:0});
+  const wl=TX(svg,x0+(S0+1.5)*cw,yL-36,'START  ATG = Met',{'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#2b8a3e'});S(wl,{o:0});
+  const stop=E('rect',{x:x0+(E0-3)*cw-2,y:yL-24,width:3*cw+4,height:36,rx:6,fill:'rgba(224,49,49,.18)',stroke:'#e03131','stroke-width':4},svg);S(stop,{o:0});
+  const stl=TX(svg,x0+(E0-1.5)*cw,yL+38,'STOP  TAA',{'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#e03131'});S(stl,{o:0});
+  const orf=E('path',{d:`M${x0+S0*cw},${yL-62} L${x0+E0*cw-14},${yL-62} L${x0+E0*cw},${yL-52} L${x0+E0*cw-14},${yL-42} L${x0+S0*cw},${yL-42} Z`,fill:'#69db7c',stroke:'#2b8a3e','stroke-width':2},svg);S(orf,{o:0});const orfl=TX(svg,x0+(S0+E0)/2*cw,yL-47,'open reading frame (ORF) = one gene',{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#14532d'});S(orfl,{o:0});
+  const chips=[];for(let k=0;k<(E0-S0)/3;k++){const cod=SEQ.substr(S0+3*k,3),a=CT[cod];const g=G(svg);const stp=a==='*';E('rect',{x:-20,y:-16,width:40,height:32,rx:16,fill:stp?'#ffc9c9':'#d0ebff',stroke:stp?'#e03131':'#1c7ed6','stroke-width':2},g);TX(g,0,6,a,{'text-anchor':'middle','font-size':18,'font-weight':800,fill:stp?'#c92a2a':'#1864ab',class:'mono'});S(g,{x:x0+(S0+3*k+1.5)*cw,y:250,o:0});chips.push(g)}
+  const prot=TX(svg,480,312,'',{'text-anchor':'middle','font-size':22,'font-weight':800,fill:'#1864ab',class:'mono'});const protL=TX(svg,480,338,'protein (amino acids)  ·  codon table: 3 letters → 1 amino acid',{'text-anchor':'middle','font-size':13,fill:'#587670'});S(prot,{o:0});S(protL,{o:0});
+  const rev=TX(svg,480,392,'Genes can lie on both DNA strands – the reverse strand is read as its reverse complement.',{'text-anchor':'middle','font-size':13.5,fill:'#587670'});S(rev,{o:0});
+  // overview
+  const ov=G(svg);E('rect',{x:40,y:214,width:880,height:12,rx:6,fill:'#14302c'},ov);TX(ov,40,330,'contig_1 – a few thousand genes per genome (a typical actinomycete has ~7,000–9,000)',{'font-size':13,fill:'#587670'});
+  const defs=[[56,70,1,'other',''],[140,48,1,'trans','transporter'],[200,96,1,'reg','regulator'],[316,64,-1,'bio',''],[398,86,1,'pks','KSα'],[500,72,1,'pks','KSβ (CLF)'],[588,44,1,'pks','ACP'],[648,70,1,'bio','cyclase'],[740,52,-1,'sugar','sugar enzyme'],[804,62,-1,'sugar',''],[880,40,1,'other','']];
+  const genes=defs.map(([x,w,d,t,l],k)=>{const g=G(ov);geneShape(g,w,d,'#adb5bd');S(g,{x,y:d>0?184:256,o:0});g._t=t;g._l=l;g._d=d;g._x=x;g._w=w;g._poly=g.children[0];if(l){g._lab=TX(g,w/2,d>0?-20:30,l,{'text-anchor':'middle','font-size':12.5,'font-weight':700,fill:GT[t]});g._lab.style.opacity=0}return g});
+  // legend
+  const lgd=G(ov);[['pks','Type II PKS core'],['sugar','sugar biosynthesis'],['bio','additional biosynthetic'],['reg','regulatory'],['trans','transporter'],['other','other / unknown']].forEach(([t,s],k)=>{const x=40+(k%3)*300,y=366+Math.floor(k/3)*26;E('rect',{x,y:y-10,width:16,height:16,rx:4,fill:GT[t]},lgd);TX(lgd,x+24,y+3,s,{'font-size':13,fill:'#14302c'})});S(lgd,{o:0});S(ov,{o:0});
+  const steps=[
+   {t:'The assembled sequence is just a string of letters',en:'After assembly we have contigs: long strings of A, T, G and C stored in FASTA format. Genes are hidden inside – the computer must find them.',vi:'Sau khi ghép ta có các contig: chuỗi dài A, T, G, C lưu ở định dạng FASTA. Gen nằm ẩn bên trong – máy tính phải tìm ra chúng.'},
+   {t:'Scan for a start codon',en:'Gene finders (such as Prodigal or Glimmer) slide along the sequence looking for a start codon, usually ATG, which codes for methionine.',vi:'Phần mềm tìm gen (như Prodigal, Glimmer) trượt dọc chuỗi để tìm codon khởi đầu, thường là ATG mã hóa methionine.'},
+   {t:'Read in triplets (codons)',en:'From the start codon the sequence is read three letters at a time. The reading frame must stay unbroken – a shift of one letter would change every following codon.',vi:'Từ codon khởi đầu, chuỗi được đọc từng bộ ba. Khung đọc phải liên tục – lệch một chữ cái sẽ làm đổi mọi codon phía sau.'},
+   {t:'Stop codon = end of the gene',en:'The frame continues until an in-frame stop codon (TAA, TAG or TGA). The stretch from start to stop is an open reading frame (ORF) – a gene candidate. (Note the TGA inside the ORF is out of frame, so it is ignored.)',vi:'Khung đọc tiếp tục đến khi gặp codon kết thúc cùng khung (TAA, TAG hoặc TGA). Đoạn từ start đến stop là khung đọc mở (ORF) – ứng viên gen. (TGA nằm trong ORF lệch khung nên bị bỏ qua.)'},
+   {t:'Translate codons → protein',en:'Each codon is translated with the genetic code. This ORF encodes the short peptide M-S-K-G-L-I-A-E-T-G. Real genes are 300–3000 codons long.',vi:'Mỗi codon được dịch theo mã di truyền. ORF này mã hóa peptide ngắn M-S-K-G-L-I-A-E-T-G. Gen thật dài 300–3000 codon.'},
+   {t:'Zoom out: all genes of the contig',en:'The program repeats this for the whole contig and both strands, predicting thousands of genes. Arrow direction = strand. At this point we only know where the genes are – not what they do.',vi:'Chương trình lặp lại cho toàn bộ contig và cả hai mạch, dự đoán hàng nghìn gen. Chiều mũi tên = mạch DNA. Lúc này ta mới biết gen nằm ở đâu, chưa biết chức năng.'},
+   {t:'Annotation: what does each protein do?',en:'Each predicted protein is compared (BLAST, HMM/Pfam) with databases of known proteins. Matches give a probable function – e.g. ketosynthase KSα/KSβ and ACP, a type II PKS “core”, with sugar enzymes, a regulator and a transporter nearby. Biosynthetic genes tend to sit side by side.',vi:'Mỗi protein dự đoán được so sánh (BLAST, HMM/Pfam) với cơ sở dữ liệu protein đã biết để suy ra chức năng – ví dụ ketosynthase KSα/KSβ và ACP là “lõi” type II PKS, kèm enzyme tạo đường, gen điều hòa và protein vận chuyển. Gen sinh tổng hợp thường nằm cạnh nhau.'}];
+  return{steps,set(i){
+    const seqv=i<=4;
+    S(hdr,{o:seqv?1:0});letters.forEach((t,k)=>S(t,{o:seqv?(i>=3&&(k<S0||k>=E0)?.3:1):0,d:i===0?k*.03:0}));
+    S(win,{x:i===0?x0-2:(i===1?x0+S0*cw-2:x0+S0*cw-2),o:i===1?1:0,dur:i===1?2.2:1.1});S(wl,{o:i===1?1:0,d:i===1?2.0:0});
+    bgs.forEach((r,k)=>S(r,{o:(i>=2&&i<=4)?1:0,d:i===2?k*.22:0}));S(stop,{o:i===3?1:0,d:i===3?.4:0});S(stl,{o:i===3?1:0,d:i===3?.4:0});
+    S(orf,{o:i>=3&&i<=4?1:0,d:i===3?1:0});S(orfl,{o:i>=3&&i<=4?1:0,d:i===3?1:0});
+    chips.forEach((g,k)=>S(g,{o:i===4?1:0,d:i===4?k*.25:0}));S(prot,{o:i===4?1:0,d:i===4?2.9:0});S(protL,{o:i===4?1:0,d:i===4?2.9:0});
+    prot.textContent='M S K G L I A E T G ■';S(rev,{o:i===5?1:0,d:i===5?1.6:0});
+    S(ov,{o:i>=5?1:0});S(lgd,{o:i===6?1:0});
+    genes.forEach((g,k)=>{S(g,{o:i>=5?1:0,d:i===5?k*.18:0});g._poly.style.fill=i===6?GT[g._t]:'#adb5bd';if(g._lab)g._lab.style.opacity=i===6?1:0});
+  }}
+}});
+
+/* ---------- 7 antiSMASH ---------- */
+scenes.push({title:'5 · BGC prediction with antiSMASH',sub:'From annotated genes to biosynthetic gene cluster regions',build(svg){
+  const types=['other','other','trans','reg','other','bio','bio','sugar','sugar','bio','pks','pks','pks','bio','sugar','reg','trans','bio','other','other','other','other'];
+  const dirs=[1,1,-1,1,1,1,1,1,-1,1,1,1,1,1,1,-1,1,1,1,-1,1,1];
+  const tr=G(svg);const genes=types.map((t,i)=>{const g=G(tr);geneShape(g,34,dirs[i],'#adb5bd',12);S(g,{x:50+i*40,y:210});g._poly=g.children[0];g._t=t;return g});
+  E('line',{x1:40,y1:210,x2:930,y2:210,stroke:'#868e96','stroke-width':1.5,'stroke-dasharray':'3 4'},tr);tr.insertBefore(tr.lastChild,tr.firstChild);
+  const badge=G(svg);E('rect',{x:700,y:36,width:220,height:50,rx:10,fill:'#7f1d1d'},badge);TX(badge,810,69,'antiSMASH',{'text-anchor':'middle','font-size':24,'font-weight':800,fill:'#fff'});
+  const inl=TX(svg,40,66,'Input: annotated genome (GenBank / FASTA + genes)',{'font-size':15,'font-weight':700,fill:'#14302c'});
+  const arr=E('path',{d:'M590,62 L690,62 m-10,-8 l10,8 l-10,8',stroke:'#495057','stroke-width':3,fill:'none'},svg);
+  const scan=E('rect',{x:0,y:130,width:40,height:160,rx:8,fill:'#74c0fc',opacity:.35,stroke:'#1c7ed6','stroke-width':2},svg);S(scan,{x:30,o:0});
+  const rule=G(svg);E('rect',{x:40,y:300,width:880,height:76,rx:12,fill:'#fff5f5',stroke:'#e03131','stroke-width':2},rule);TX(rule,60,328,'Rule “type II PKS”:  KSα + KSβ (chain-length factor)  [+ ACP]  all present',{'font-size':16,'font-weight':700,fill:'#c92a2a'});TX(rule,60,356,'Detected with profile HMMs of conserved domains (e.g. Pfam: Ketoacyl-synt, Ketoacyl-synt_C, PP-binding)',{'font-size':13.5,fill:'#495057'});S(rule,{o:0});
+  const lab=['KSα','KSβ','ACP'].map((s,k)=>{const t=TX(svg,50+(10+k)*40+17,184,s,{'text-anchor':'middle','font-size':13,'font-weight':800,fill:'#c92a2a'});S(t,{o:0});return t});
+  const reg=E('rect',{x:0,y:150,width:13*40-2,height:120,rx:14,fill:'rgba(15,157,138,.12)',stroke:'#0f9d8a','stroke-width':3,'stroke-dasharray':'8 5'},svg);S(reg,{o:0,sx:.2});
+  const regl=TX(svg,50+11.5*40,138,'Region #99 · type II PKS',{'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#0b6e61'});S(regl,{o:0});
+  const note2=TX(svg,480,312,'Neighbouring genes within a rule-specific distance are added to the region (core + biosynthetic, regulatory, transport genes).',{'text-anchor':'middle','font-size':14,fill:'#495057'});S(note2,{o:0});
+  // table
+  const tb=G(svg);const rows=[['Region','Type','Most similar known cluster','Similarity'],['Region 1','terpene','geosmin','High'],['Region 2','siderophore','desferrioxamine','High'],['Region 3','NRPS','—','Low'],['Region 4','RiPP-like','—','Low'],['Region #99','T2PKS','few / distant hits','Low']];
+  const cx=[60,190,340,720];rows.forEach((r,i)=>{const y=108+i*40;E('rect',{x:40,y:y-26,width:880,height:38,rx:8,fill:i===0?'#0d2b27':(i===5?'#d3f9d8':(i%2?'#f1f5f4':'#fff')),stroke:i===5?'#2b8a3e':'none','stroke-width':2},tb);r.forEach((c,k)=>{let fill=i===0?'#e8fffb':'#14302c';if(i>0&&k===3)fill=c==='High'?'#c2410c':'#2b8a3e';TX(tb,cx[k],y,c,{'font-size':15,'font-weight':(i===0||i===5||k===0)?700:500,fill})})});
+  TX(tb,40,372,'Illustrative layout of the antiSMASH overview table. Real result for B16437: 38 regions; region #99 is a type II PKS cluster.',{'font-size':13,fill:'#587670'});TX(tb,40,396,'Low similarity to known clusters → the product may be new (or a known compound class not yet linked to a cluster).',{'font-size':13,'font-weight':600,fill:'#0b6e61'});S(tb,{o:0});
+  // compare
+  const cmp=G(svg);TX(cmp,40,76,'Query cluster (region #99)',{'font-size':15,'font-weight':700,fill:'#0b6e61'});TX(cmp,40,326,'Known cluster in MIBiG (reference database)',{'font-size':15,'font-weight':700,fill:'#495057'});
+  const qt=['bio','bio','sugar','sugar','bio','pks','pks','pks','bio','sugar','reg','trans','bio'],kt=['bio','other','sugar','sugar','bio','pks','pks','pks','bio','sugar','trans','reg','other'],mt=[1,0,1,1,1,1,1,1,1,1,0,0,0];
+  qt.forEach((t,k)=>{const g=G(cmp);geneShape(g,52,1,GT[t],14);S(g,{x:60+k*66,y:130})});kt.forEach((t,k)=>{const g=G(cmp);geneShape(g,52,1,GT[t],14);S(g,{x:60+k*66,y:268})});
+  const lines=[];mt.forEach((m,k)=>{if(m){const l=E('line',{x1:86+k*66,y1:146,x2:86+k*66,y2:252,stroke:'#868e96','stroke-width':2.5},cmp);S(l,{o:0});lines.push(l)}});
+  const meter=G(svg);E('rect',{x:60,y:372,width:520,height:22,rx:11,fill:'#e9ecef'},meter);const fill=E('rect',{x:0,y:372,width:520,height:22,rx:11,fill:'#0f9d8a'},meter);S(fill,{x:60,sx:.001});TX(meter,596,389,'~60 % of genes have homologs',{'font-size':14,'font-weight':700,fill:'#0b6e61'});
+  TX(cmp,60,352,'grey lines = homologous genes found in both clusters',{'font-size':12.5,fill:'#587670'});
+  S(cmp,{o:0});S(meter,{o:0});
+  // domains
+  const dm=G(svg);TX(dm,40,64,'NRPS modules (domains: C condensation · A adenylation · T thiolation)',{'font-size':14.5,'font-weight':700,fill:'#14302c'});
+  const mods=[['A','T'],['C','A','T'],['C','A','T']],dc={C:'#4dabf7',A:'#9775fa',T:'#ffd43b'},pred=['Ser','Thr','Val'],predChips=[];
+  mods.forEach((m,mi)=>{const x=40+mi*296;E('rect',{x,y:82,width:276,height:96,rx:14,fill:'#f8f9fa',stroke:'#adb5bd','stroke-width':2},dm);m.forEach((d,k)=>{const cx=x+(276-(m.length-1)*76)/2+k*76;E('circle',{cx,cy:130,r:28,fill:dc[d],stroke:'#fff','stroke-width':3},dm);TX(dm,cx,137,d,{'text-anchor':'middle','font-size':20,'font-weight':800,fill:'#14302c'});if(d==='A'){E('path',{d:`M${cx},160 L${cx},206`,stroke:'#9775fa','stroke-width':2.5},dm);const g=G(dm);E('rect',{x:-32,y:-15,width:64,height:30,rx:15,fill:'#e5dbff',stroke:'#7048e8','stroke-width':2},g);TX(g,0,6,pred[mi],{'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#5f3dc4'});S(g,{x:cx,y:222,o:0});predChips.push(g)}})});
+  const ptxt=TX(dm,40,274,'A-domain substrate prediction → predicted peptide:',{'font-size':14,'font-weight':700,fill:'#14302c'});const pep=TX(dm,480,274,'Ser – Thr – Val',{'font-size':18,'font-weight':800,fill:'#5f3dc4'});S(ptxt,{o:0});S(pep,{o:0});
+  TX(dm,40,318,'PKS modules (domains: KS · AT · ACP)  → AT picks the extender unit (malonyl- / methylmalonyl-CoA)',{'font-size':14.5,'font-weight':700,fill:'#14302c'});
+  [['KS','#ff8787'],['AT','#69db7c'],['ACP','#8ce99a']].forEach(([d,c],k)=>{E('circle',{cx:90+k*80,cy:366,r:25,fill:c,stroke:'#fff','stroke-width':3},dm);TX(dm,90+k*80,372,d,{'text-anchor':'middle','font-size':15,'font-weight':800,fill:'#14302c'})});
+  TX(dm,350,360,'Domain order and substrate specificity let antiSMASH',{'font-size':14,fill:'#495057'});TX(dm,350,382,'predict the likely core structure of the product.',{'font-size':14,fill:'#495057'});
+  S(dm,{o:0});
+  // toolbox
+  const tbx=G(svg);const Q=[['Cluster mining & BGC databases','#ffe3e3',['antiSMASH','PRISM','DeepBGC','MIBiG','BiG-SCAPE']],['PKS / NRPS analysis','#e6fcf5',['NaPDoS','NRPSpredictor','SBSPKS','antiSMASH domains']],['Metabolic modelling','#fff9db',['COBRA Toolbox','ModelSEED','CarveMe']],['Compound databases & metabolomics','#e7f5ff',['PubChem','NP Atlas','GNPS','ChEBI']]];
+  Q.forEach(([t,c,ch],k)=>{const x=40+(k%2)*450,y=50+Math.floor(k/2)*170;E('rect',{x,y,width:430,height:150,rx:16,fill:c,stroke:'#fff','stroke-width':3},tbx);TX(tbx,x+18,y+30,t,{'font-size':16,'font-weight':800,fill:'#14302c'});let cx=x+18,cy=y+60;ch.forEach(n=>{const w=n.length*8.4+22;if(cx+w>x+420){cx=x+18;cy+=38}E('rect',{x:cx,y:cy,width:w,height:30,rx:15,fill:'#fff',stroke:'#adb5bd'},tbx);TX(tbx,cx+w/2,cy+20,n,{'text-anchor':'middle','font-size':13.5,'font-weight':600,fill:'#14302c'});cx+=w+8})});S(tbx,{o:0});
+  const steps=[
+   {t:'Input: an annotated genome',en:'antiSMASH takes the annotated genome (all genes with their predicted functions). Natural-product genes are not scattered randomly – they usually sit side by side as a biosynthetic gene cluster (BGC).',vi:'antiSMASH nhận hệ gen đã chú giải (mọi gen cùng chức năng dự đoán). Gen sinh tổng hợp sản phẩm tự nhiên không nằm rải rác mà thường đứng cạnh nhau thành cụm gen sinh tổng hợp (BGC).'},
+   {t:'Step 1 – Look for signature (“core”) genes',en:'For every BGC class there is a rule: a combination of conserved enzyme domains, detected with profile HMMs. For type II PKS the rule is KSα + KSβ (+ ACP). The scanner finds exactly these three genes.',vi:'Mỗi lớp BGC có một “luật”: tổ hợp các vùng enzyme bảo tồn, phát hiện bằng profile HMM. Với type II PKS là KSα + KSβ (+ ACP). Bộ quét tìm đúng ba gen này.'},
+   {t:'Step 2 – Extend to a region',en:'Around the core genes a region is drawn, including neighbouring genes: additional biosynthetic enzymes, sugar-modifying enzymes, regulators and transporters. This region is the candidate BGC (here: region #99).',vi:'Quanh gen lõi, một vùng được vẽ gồm các gen lân cận: enzyme sinh tổng hợp bổ sung, enzyme gắn đường, gen điều hòa và protein vận chuyển. Vùng này là BGC ứng viên (ở đây: vùng #99).'},
+   {t:'Output: list of regions',en:'The overview table lists every region with its location, BGC type and the most similar known cluster. For B16437 antiSMASH reported 38 regions. We choose the ones that look interesting – here region #99, a type II PKS.',vi:'Bảng tổng quan liệt kê mọi vùng với vị trí, loại BGC và cụm đã biết giống nhất. Với B16437, antiSMASH báo 38 vùng. Ta chọn vùng đáng quan tâm – ở đây là vùng #99, type II PKS.'},
+   {t:'Compare with known clusters (MIBiG)',en:'Each region is compared with MIBiG, a database of experimentally characterised clusters. High gene-level similarity suggests a known compound (dereplication); low similarity suggests possible novelty. Be careful: similarity says nothing certain about the exact product.',vi:'Mỗi vùng được so sánh với MIBiG – cơ sở dữ liệu các cụm đã được xác định bằng thực nghiệm. Giống nhiều → có thể là hợp chất đã biết (dereplication); giống ít → có thể mới. Lưu ý: độ giống chưa khẳng định chắc chắn sản phẩm.'},
+   {t:'Zoom in: domains predict the building blocks',en:'For NRPS and PKS clusters, antiSMASH also analyses domains. The A-domain specificity code predicts which amino acid is selected; the AT domain predicts the extender unit. Together they give a predicted core structure.',vi:'Với cụm NRPS và PKS, antiSMASH còn phân tích từng domain. Mã đặc hiệu của domain A dự đoán amino acid được chọn; domain AT dự đoán đơn vị kéo dài. Gộp lại cho cấu trúc lõi dự đoán.'},
+   {t:'The bioinformatics toolbox',en:'antiSMASH is one of many tools: cluster miners and databases, PKS/NRPS analysis tools, metabolic-modelling tools, and compound databases or metabolomics platforms. A good genome-mining project combines several of them.',vi:'antiSMASH chỉ là một trong nhiều công cụ: công cụ khai thác cụm gen và cơ sở dữ liệu, công cụ phân tích PKS/NRPS, mô hình hóa chuyển hóa, cơ sở dữ liệu hợp chất và nền tảng metabolomics. Một dự án genome mining tốt thường kết hợp nhiều công cụ.'}];
+  return{steps,set(i){
+    const tk=i<=2;S(tr,{o:tk?1:0});S(badge,{o:i<=1?1:0});S(inl,{o:i<=1?1:0});S(arr,{o:i<=1?1:0});
+    S(scan,{x:i===1?446:30,o:i===1?.4:0,dur:i===1?2.6:1.1});S(rule,{o:i===1?1:0,d:i===1?2.6:0});S(note2,{o:i===2?1:0,d:i===2?1:0});
+    genes.forEach((g,k)=>{let c='#adb5bd';if(i>=1&&g._t==='pks')c=GT.pks;if(i>=2&&k>=5&&k<=17)c=GT[g._t];g._poly.style.transitionDelay=(i===1&&g._t==='pks')?'3s':(i===2?(Math.abs(k-11)*.12)+'s':'0s');g._poly.style.fill=c});
+    lab.forEach(l=>S(l,{o:i>=1&&i<=2?1:0,d:i===1?3.2:0}));
+    S(reg,{o:i>=2&&i<=2?1:0,sx:i===2?1:.2,x:50+5*40-8,y:0,d:i===2?.2:0});S(regl,{o:i===2?1:0,d:i===2?1.4:0});
+    reg.style.transformOrigin='0 0';
+    S(tb,{o:i===3?1:0});S(cmp,{o:i===4?1:0});lines.forEach((l,k)=>S(l,{o:i===4?1:0,d:i===4?.6+k*.15:0}));S(meter,{o:i===4?1:0});S(fill,{x:60,sx:i===4?.6:.001,d:i===4?1.8:0,dur:1.6});
+    S(dm,{o:i===5?1:0});predChips.forEach((g,k)=>S(g,{o:i===5?1:0,d:i===5?.6+k*.5:0}));S(ptxt,{o:i===5?1:0,d:i===5?2.2:0});S(pep,{o:i===5?1:0,d:i===5?2.4:0});
+    S(tbx,{o:i===6?1:0});
+  }}
+}});
+
+/* ---------- 8 Genetic manipulation ---------- */
+scenes.push({title:'6 · Genetic manipulation & validation',sub:'Disrupt a core PKS gene and look at the compound profile',build(svg){
+  // chemistry
+  const CH=G(svg);
+  [[110,120,'KSα','#74c0fc'],[182,120,'KSβ','#ffa94d']].forEach(([x,y,s,c])=>{E('circle',{cx:x,cy:y,r:32,fill:c,stroke:'#fff','stroke-width':3},CH);TX(CH,x,y+5,s,{'text-anchor':'middle','font-size':15,'font-weight':800,fill:'#14302c'})});
+  E('circle',{cx:146,cy:226,r:26,fill:'#8ce99a',stroke:'#fff','stroke-width':3},CH);TX(CH,146,231,'ACP',{'text-anchor':'middle','font-size':14,'font-weight':800,fill:'#14302c'});TX(CH,146,64,'“minimal PKS”',{'text-anchor':'middle','font-size':15,'font-weight':700,fill:'#14302c'});TX(CH,146,88,'KSα · KSβ · ACP',{'text-anchor':'middle','font-size':12.5,fill:'#587670'});
+  const pts=[];for(let i=0;i<16;i++)pts.push([270+i*30,226+(i%2?-16:16)]);
+  const units=[];let prev=[174,226];
+  for(let k=0;k<8;k++){const g=G(CH);const a=pts[2*k],b=pts[2*k+1];E('line',{x1:prev[0],y1:prev[1],x2:a[0],y2:a[1],stroke:'#495057','stroke-width':3.5,'stroke-linecap':'round'},g);E('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#495057','stroke-width':3.5,'stroke-linecap':'round'},g);
+    [a,b].forEach(p=>E('circle',{cx:p[0],cy:p[1],r:5,fill:'#495057'},g));E('line',{x1:b[0],y1:b[1],x2:b[0],y2:b[1]-22,stroke:'#e03131','stroke-width':3},g);TX(g,b[0],b[1]-28,'O',{'text-anchor':'middle','font-size':13,'font-weight':800,fill:'#e03131'});
+    const t=TX(g,(a[0]+b[0])/2,282,k===0?'C2 start':'+C2',{'text-anchor':'middle','font-size':11,fill:'#587670'});S(g,{o:0});units.push(g);prev=b}
+  const chl=TX(CH,520,330,'acetyl-CoA starter + 7 malonyl-CoA extender units (−CO₂ each) → C16 poly-β-ketone chain on the ACP',{'text-anchor':'middle','font-size':14,'font-weight':600,fill:'#14302c'});
+  S(CH,{o:0});
+  const ring=G(svg);const rs=[];for(let k=0;k<4;k++){const p=E('polygon',{points:hex(0,0,34),fill:'#fff3bf',stroke:'#f08c00','stroke-width':3.5},ring);S(p,{x:430+k*58.9,y:200,s:.4,o:0});rs.push(p)}
+  const rl=TX(ring,490,300,'cyclases & aromatases fold the chain into fused aromatic rings',{'text-anchor':'middle','font-size':14,'font-weight':600,fill:'#14302c'});S(rl,{o:0});
+  const tail=G(svg);[[430,142,'OH'],[489,258,'OH'],[607,142,'OH'],[665,200,'OCH₃']].forEach(([x,y,s])=>{E('line',{x1:x,y1:y>200?y-14:y+14,x2:x,y2:y>200?y-32:y+32,stroke:'#495057','stroke-width':2},tail);TX(tail,x+(s==='OCH₃'?20:0),y>200?y+4:y-2,s,{'text-anchor':'middle','font-size':13,'font-weight':800,fill:'#c92a2a'})});
+  const sg=E('polygon',{points:hex(340,200,22),fill:'#ffa8a8',stroke:'#e03131','stroke-width':3},tail);TX(tail,340,162,'sugar',{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#c92a2a'});E('line',{x1:362,y1:200,x2:396,y2:200,stroke:'#495057','stroke-width':3},tail);
+  TX(tail,490,342,'tailoring enzymes add –OH, –OCH₃, sugars → anthracycline-type product (fragilomycins)',{'text-anchor':'middle','font-size':14,'font-weight':600,fill:'#14302c'});S(tail,{o:0});
+  // genetics
+  const GN=G(svg);TX(GN,60,50,'Chromosome of Streptosporangium B16437 (not to scale)',{'font-size':15,'font-weight':700,fill:'#14302c'});
+  const seg=(c)=>{const r=E('rect',{x:0,y:-13,width:1,height:26,fill:c},GN);S(r,{x:60,y:260,sx:1});return r};
+  const FL=seg('#ced4da'),A=seg('#ff6b6b'),F1=seg('#e03131'),V=seg('#868e96'),F2=seg('#e03131'),B=seg('#ff6b6b'),FR=seg('#ced4da');
+  const WT={FL:[60,270],A:[330,50],F1:[380,60],V:[440,0.001],F2:[440,.001],B:[440,50],FR:[490,240]},ED={FL:[60,270],A:[330,50],F1:[380,60],V:[440,130],F2:[570,60],B:[630,50],FR:[680,240]};
+  const SG={FL,A,F1,V,F2,B,FR};
+  const kl=TX(GN,410,226,'KSα',{'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#c92a2a'});
+  const tgt=TX(GN,410,196,'Target: core gene needed for the polyketide backbone',{'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#c92a2a'});const tarr=E('path',{d:'M410,202 l0,10 m-5,-5 l5,5 l5,-5',stroke:'#c92a2a','stroke-width':2.5,fill:'none'},GN);
+  const t1=TX(GN,385,226,'KSα′ (5′ part, truncated)',{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#c92a2a'}),t2=TX(GN,600,226,'KSα′ (3′ part, truncated)',{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#c92a2a'});
+  const vl=TX(GN,505,292,'plasmid backbone integrated',{'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#495057'});
+  const pl=G(GN);E('circle',{r:48,fill:'none',stroke:'#495057','stroke-width':5},pl);E('path',{d:'M34,34 A48,48 0 0 1 -34,34',fill:'none',stroke:'#e03131','stroke-width':9},pl);TX(pl,0,5,'pKC1132',{'text-anchor':'middle','font-size':14,'font-weight':800,fill:'#14302c'});
+  E('rect',{x:30,y:-62,width:96,height:22,rx:6,fill:'#d0ebff',stroke:'#1c7ed6'},pl);TX(pl,78,-47,'AprR marker',{'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#1864ab'});E('rect',{x:-122,y:-12,width:70,height:22,rx:6,fill:'#e5dbff',stroke:'#7048e8'},pl);TX(pl,-87,3,'oriT',{'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#5f3dc4'});
+  const pt=TX(GN,640,100,'cloned internal fragment of KSα',{'font-size':13,'font-weight':700,fill:'#c92a2a'}),pt2=TX(GN,640,122,'suicide vector: cannot replicate in the host',{'font-size':13,fill:'#495057'}),pt3=TX(GN,640,144,'delivered by conjugation (E. coli → actinomycete)',{'font-size':13,fill:'#495057'});
+  S(pl,{x:410,y:132,o:0});S(pt,{o:0});S(pt2,{o:0});S(pt3,{o:0});
+  const xm=G(GN);E('line',{x1:-16,y1:-16,x2:16,y2:16,stroke:'#fab005','stroke-width':7,'stroke-linecap':'round'},xm);E('line',{x1:16,y1:-16,x2:-16,y2:16,stroke:'#fab005','stroke-width':7,'stroke-linecap':'round'},xm);S(xm,{x:410,y:245,o:0});
+  const xl=TX(GN,410,330,'homologous recombination (single crossover)',{'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#b45309'});S(xl,{o:0});
+  const sel=TX(GN,490,338,'Apramycin selection → only cells that integrated the plasmid grow',{'text-anchor':'middle','font-size':14,'font-weight':600,fill:'#14302c'});S(sel,{o:0});
+  const lw=TX(GN,60,300,'WT',{'font-size':14,'font-weight':800,fill:'#14302c'});
+  S(GN,{o:0});
+  // HPLC
+  const HP=G(svg);const bl=[['WT','#14302c',150],['ΔKSα mutant','#c92a2a',310]];
+  const trace=(y,h)=>{let d=`M120,${y}`;[[220,40],[330,70],[470,h],[600,60],[740,35]].forEach(([x,hh])=>{d+=` L${x-30},${y} Q${x-12},${y} ${x-6},${y-hh*.85} Q${x},${y-hh*1.1} ${x+6},${y-hh*.85} Q${x+12},${y} ${x+30},${y}`});return d+` L900,${y}`};
+  bl.forEach(([n,c,y],k)=>{TX(HP,60,y-60,n,{'font-size':16,'font-weight':800,fill:c});E('line',{x1:120,y1:y,x2:900,y2:y,stroke:'#dee2e6','stroke-width':1.5},HP);const p=E('path',{d:trace(y,k===0?92:0),pathLength:1,fill:'none',stroke:c,'stroke-width':3,class:'trace'},HP);bl[k][3]=p});
+  const hb=E('rect',{x:432,y:56,width:76,height:300,rx:10,fill:'rgba(64,192,87,.13)',stroke:'#2f9e44','stroke-width':3,'stroke-dasharray':'8 5'},HP);S(hb,{o:0});
+  const hl=TX(HP,470,46,'target compound',{'text-anchor':'middle','font-size':14,'font-weight':800,fill:'#2b8a3e'});S(hl,{o:0});
+  const hm=TX(HP,470,300,'✗ peak gone',{'text-anchor':'middle','font-size':14,'font-weight':800,fill:'#c92a2a'});S(hm,{o:0});
+  TX(HP,510,386,'retention time (min) →',{'text-anchor':'middle','font-size':13,fill:'#587670'});TX(HP,60,386,'UV signal',{'font-size':13,fill:'#587670'});
+  const concl=TX(HP,510,418,'No core gene → no peak:  BGC #99  ⇒  fragilomycin-type polyketide',{'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#0b6e61'});S(concl,{o:0});S(HP,{o:0});
+  const steps=[
+   {t:'How a type II PKS builds a polyketide (1): chain elongation',en:'The minimal PKS – KSα, KSβ (chain-length factor) and the acyl carrier protein (ACP) – starts with an acetyl unit and repeatedly adds C2 units from malonyl-CoA. The growing poly-β-ketone chain stays attached to the ACP.',vi:'“Minimal PKS” gồm KSα, KSβ (yếu tố quyết định độ dài chuỗi) và protein mang acyl (ACP): bắt đầu bằng một đơn vị acetyl rồi liên tục thêm đơn vị C2 từ malonyl-CoA. Chuỗi poly-β-keto đang dài ra vẫn gắn trên ACP.'},
+   {t:'(2): cyclisation and aromatisation',en:'Cyclases and aromatases fold the reactive chain and close it into fused aromatic rings – the “core structure”. Without KSα there is no chain, therefore no core at all.',vi:'Cyclase và aromatase gấp chuỗi hoạt tính và đóng thành các vòng thơm ngưng tụ – “cấu trúc lõi”. Không có KSα thì không có chuỗi, nên không có lõi.'},
+   {t:'(3): tailoring',en:'Tailoring enzymes (oxygenases, methyltransferases, glycosyltransferases) decorate the core with –OH, –OCH₃ and sugars. For B16437 the final product is expected to be fragilomycin – an anthracycline-type compound.',vi:'Enzyme hoàn thiện (oxygenase, methyltransferase, glycosyltransferase) gắn thêm –OH, –OCH₃ và đường lên lõi. Với B16437, sản phẩm cuối được kỳ vọng là fragilomycin – hợp chất loại anthracycline.'},
+   {t:'Choose the target gene',en:'To prove that region #99 makes the compound we disrupt a gene that the pathway cannot do without. The KSα gene of the minimal PKS is the classic choice for type II PKS clusters.',vi:'Để chứng minh vùng #99 tạo ra hợp chất, ta bất hoạt một gen mà con đường không thể thiếu. Gen KSα thuộc “minimal PKS” là lựa chọn kinh điển cho cụm type II PKS.'},
+   {t:'Build the knock-out plasmid',en:'An internal piece of KSα is cloned into a suicide vector (pKC1132): it carries an antibiotic-resistance marker but cannot replicate in the actinomycete. It is transferred into B16437 by conjugation from E. coli.',vi:'Một đoạn nằm bên trong gen KSα được nhân dòng vào vector tự sát (pKC1132): có gen kháng kháng sinh nhưng không tự nhân lên trong xạ khuẩn. Plasmid được chuyển vào B16437 bằng tiếp hợp từ E. coli.'},
+   {t:'Single crossover (homologous recombination)',en:'The cloned fragment is identical to the chromosomal KSα, so a single crossover can occur between them. The whole plasmid is inserted into the chromosome.',vi:'Đoạn đã nhân dòng giống hệt KSα trên nhiễm sắc thể nên có thể xảy ra một trao đổi chéo đơn giữa chúng. Toàn bộ plasmid được chèn vào nhiễm sắc thể.'},
+   {t:'Result: KSα is split into two incomplete copies',en:'After integration the intact gene no longer exists: one copy lacks its 3′ end, the other its 5′ end – neither gives a functional enzyme. Cells that integrated the plasmid are selected on antibiotic.',vi:'Sau khi chèn, gen nguyên vẹn không còn: một bản thiếu đầu 3′, bản kia thiếu đầu 5′ – cả hai đều không tạo được enzyme hoạt động. Tế bào đã chèn plasmid được chọn lọc trên kháng sinh.'},
+   {t:'Proof: compare HPLC profiles',en:'Wild type and mutant are fermented and extracts analysed by HPLC. One peak present in the wild type is missing in the mutant – so the type II PKS cluster is responsible for this compound. (Today CRISPR-Cas systems make such edits faster, but the logic is the same.)',vi:'Chủng gốc và chủng đột biến được lên men, dịch chiết phân tích bằng HPLC. Một đỉnh có ở chủng gốc nhưng mất ở chủng đột biến – chứng tỏ cụm type II PKS tạo ra hợp chất này. (Ngày nay CRISPR-Cas giúp chỉnh sửa nhanh hơn nhưng logic vẫn như vậy.)'}];
+  return{steps,set(i){
+    S(CH,{o:i<=2?1:0});units.forEach((g,k)=>S(g,{o:i===0?1:(i===1?.1:0),d:i===0?k*.6:0}));S(chl,{o:i===0?1:0,d:i===0?4.5:0});
+    rs.forEach((p,k)=>S(p,{o:i>=1&&i<=2?1:0,s:i>=1&&i<=2?1:.4,d:i===1?.4+k*.3:0}));S(rl,{o:i===1?1:0,d:i===1?1.8:0});S(tail,{o:i===2?1:0,d:i===2?.3:0});
+    const gen=i>=3&&i<=6;S(GN,{o:gen?1:0});
+    const st=i>=6?ED:WT;for(const k in SG)S(SG[k],{x:st[k][0],sx:st[k][1],d:(k==='V'||k==='F2'||k==='B'||k==='FR')&&i===6?.8:0});
+    lw.textContent=i>=6?'Mutant (plasmid integrated)':'WT';S(kl,{o:i>=3&&i<=5?1:0});S(tgt,{o:i===3?1:0});S(tarr,{o:i===3?1:0});S(t1,{o:i===6?1:0,d:i===6?1.6:0});S(t2,{o:i===6?1:0,d:i===6?1.6:0});S(vl,{o:i===6?1:0,d:i===6?1.6:0});S(sel,{o:i===6?1:0,d:i===6?2:0});
+    S(pl,{x:410,y:i===5?189:132,o:i>=4&&i<=5?1:0});[pt,pt2,pt3].forEach(t=>S(t,{o:i===4?1:0,d:i===4?.6:0}));S(xm,{o:i===5?1:0,d:i===5?1.2:0});S(xl,{o:i===5?1:0,d:i===5?1.2:0});
+    S(HP,{o:i===7?1:0});bl.forEach((b,k)=>{b[3].style.transitionDelay=(k*1.4)+'s';b[3].style.strokeDashoffset=i===7?0:1});S(hb,{o:i===7?1:0,d:i===7?3.6:0});S(hl,{o:i===7?1:0,d:i===7?3.8:0});S(hm,{o:i===7?1:0,d:i===7?4:0});S(concl,{o:i===7?1:0,d:i===7?4.6:0});
+  }}
+}});
+
+/* ---------- 9 Quiz ---------- */
+const QZ=[
+ {q:'Why do we grow the same strain on several different media (OSMAC)?',o:['To make the colonies bigger','Different media switch different biosynthetic pathways on or off','To sterilise the culture','To shorten the genome'],a:1,ex:'OSMAC = One Strain – Many Compounds. The medium influences which natural products are produced.'},
+ {q:'What makes a growing chain stop in Sanger sequencing?',o:['The primer runs out','A ddNTP without a 3′-OH is incorporated','The laser turns on','The template ends'],a:1,ex:'Without a 3′-OH no further nucleotide can be attached, so the chain terminates and its last base carries a dye.'},
+ {q:'Why do Illumina nucleotides carry a reversible 3′ blocker?',o:['To make the DNA stable at room temperature','To ensure exactly one base is added per cycle','To make clusters brighter','To separate the strands'],a:1,ex:'The blocker allows one incorporation per cycle; after imaging it is removed so the next cycle can start.'},
+ {q:'Which information do assembly programs mainly use to join reads?',o:['The GC content of the genome','Overlaps between the ends of reads','The size of the Petri dish','Antibiotic resistance'],a:1,ex:'Reads that share identical ends are neighbours in the genome and can be merged.'},
+ {q:'What is a scaffold?',o:['A single read','Ordered and oriented contigs, possibly with N gaps','A plasmid vector','A protein domain'],a:1,ex:'Paired reads link contigs, giving a defined order and orientation; unknown stretches are written as N.'},
+ {q:'An ORF is …',o:['Any sequence containing ATG','A stretch from a start codon to an in-frame stop codon','A promoter','A sequencing error'],a:1,ex:'An open reading frame runs from start to the first in-frame stop codon – a gene candidate.'},
+ {q:'How does antiSMASH find a type II PKS cluster?',o:['By measuring the colour of colonies','By detecting core genes (KSα, KSβ…) with profile HMMs and adding neighbouring genes','By running HPLC','By counting reads'],a:1,ex:'Rule-based detection of signature enzymes, followed by extension to a region containing neighbouring genes.'},
+ {q:'In the knock-out experiment, what result proves that the cluster makes the compound?',o:['The mutant grows faster','A peak present in the wild type is absent in the mutant HPLC trace','The plasmid is circular','The genome becomes shorter'],a:1,ex:'If disrupting a core gene removes one compound from the profile, the cluster is responsible for it.'}];
+function buildQuiz(box){let sc=0,done=0;box.innerHTML='<h3>Check your understanding</h3><div>Score: <span id="score">0</span> / '+QZ.length+'</div>';
+  QZ.forEach((q,qi)=>{const d=document.createElement('div');d.className='q';d.innerHTML='<p>'+(qi+1)+'. '+q.q+'</p>';
+    q.o.forEach((t,k)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{if(d.classList.contains('done'))return;d.classList.add('done');[...d.querySelectorAll('button')].forEach((x,j)=>{x.disabled=true;if(j===q.a)x.classList.add('ok')});if(k===q.a)sc++;else b.classList.add('bad');done++;box.querySelector('#score').textContent=sc};d.appendChild(b)});
+    const ex=document.createElement('div');ex.className='ex';ex.textContent='💡 '+q.ex;d.appendChild(ex);box.appendChild(d)})}
+scenes.push({title:'Quiz',sub:'Eight quick questions',quiz:true});
+
+/* ================= controller ================= */
+const svg=document.getElementById('stage'),quiz=document.getElementById('quiz');
+const nav=document.getElementById('nav');
+const groups={0:'Overview',1:'Workflow',9:'Practice'};
+scenes.forEach((s,i)=>{if(groups[i]){const h=document.createElement('div');h.className='grp';h.textContent=groups[i];nav.appendChild(h)}
+  const b=document.createElement('button');b.innerHTML='<span class="n">'+(i===0?'★':(s.quiz?'?':s.title.match(/^\d+[ab]?/)[0]))+'</span><span>'+s.title.replace(/^\d+[ab]? · /,'')+'</span>';b.onclick=()=>load(i);nav.appendChild(b)});
+let cur=null,sIdx=0,step=0,timer=null,playing=false;
+const $=id=>document.getElementById(id);
+function load(i,start){stop();sIdx=i;const sc=scenes[i];[...nav.querySelectorAll('button')].forEach((b,k)=>b.classList.toggle('on',k===i));
+  $('sTitle').textContent=sc.title;$('sSub').textContent=sc.sub;try{history.replaceState(null,'','#'+i)}catch(e){}
+  svg.innerHTML='';
+  if(sc.quiz){svg.style.display='none';quiz.style.display='block';$('cap').style.display='none';$('ctrl').style.display='none';buildQuiz(quiz);cur=null;return}
+  svg.style.display='block';quiz.style.display='none';$('cap').style.display='grid';$('ctrl').style.display='flex';
+  cur=sc.build(svg,{go:n=>load(n)});
+  if(cur.steps.length>1){}
+  $('dots').innerHTML='';cur.steps.forEach((_,k)=>{const d=document.createElement('i');d.onclick=()=>{stop();goStep(k)};$('dots').appendChild(d)});
+  start=start||0;step=start;
+  if(start>0){svg.classList.add('notrans');cur.set(start-1);svg.getBoundingClientRect();requestAnimationFrame(()=>{svg.classList.remove('notrans');requestAnimationFrame(()=>goStep(start))})}
+  else{svg.classList.add('notrans');cur.set(0);cur.set(-1>0?0:0);svg.getBoundingClientRect();svg.classList.remove('notrans');requestAnimationFrame(()=>requestAnimationFrame(()=>goStep(0)))}
+}
+function caption(){const st=cur.steps[step];$('cT').textContent=st.t;$('cEn').textContent=st.en;$('cVi').textContent=st.vi;$('stepNo').textContent='Step '+(step+1)+' / '+cur.steps.length;
+  [...$('dots').children].forEach((d,k)=>{d.className=k===step?'on':(k<step?'done':'')});$('bPrev').disabled=step===0&&sIdx===0;}
+function goStep(k){step=Math.max(0,Math.min(cur.steps.length-1,k));cur.set(step);caption()}
+function dur(){const t=cur.steps[step];const base=(t.en.length*38+3500);const extra=(sIdx===2&&step===4)?9000:(sIdx===8&&step===0)?4000:(sIdx===8&&step===7)?3500:0;return(base+extra)/parseFloat($('spd').value)}
+function play(){if(!cur)return;playing=true;$('bPlay').textContent='❚❚ Pause';if(step>=cur.steps.length-1)goStep(0);schedule()}
+function schedule(){clearTimeout(timer);timer=setTimeout(()=>{if(step<cur.steps.length-1){goStep(step+1);schedule()}else stop()},dur())}
+function stop(){playing=false;clearTimeout(timer);$('bPlay').textContent='▶ Play'}
+function next(){stop();if(!cur)return;if(step<cur.steps.length-1)goStep(step+1);else if(sIdx<scenes.length-1)load(sIdx+1)}
+function prev(){stop();if(!cur)return;if(step>0)goStep(step-1);else if(sIdx>0)load(sIdx-1)}
+$('bPlay').onclick=()=>playing?stop():play();$('bNext').onclick=next;$('bPrev').onclick=prev;
+$('bRe').onclick=()=>{const k=step;const was=playing;stop();load(sIdx,k);};
+$('spd').onchange=()=>{if(playing)schedule()};
+$('viTog').onchange=e=>document.body.classList.toggle('novi',!e.target.checked);
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.key==='ArrowRight')next();else if(e.key==='ArrowLeft')prev();else if(e.key===' '){e.preventDefault();playing?stop():play()}});
+let h0=0;try{h0=parseInt(location.hash.slice(1))||0}catch(e){}
+load(Math.min(scenes.length-1,Math.max(0,h0)));
+</script>
+</body>
+</html>
